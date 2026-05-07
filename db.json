@@ -1,0 +1,35 @@
+{
+  "users": [
+    {
+      "name": "sekar",
+      "email": "gunasekaran006@gmail.com",
+      "password": "12345",
+      "id": "2rTNXi8snKM"
+    },
+    {
+      "name": "sekar",
+      "email": "gunasekaran006@gmail.com",
+      "password": "12345",
+      "id": "dTKQ0nGAivA"
+    },
+    {
+      "name": "guna",
+      "email": "gunasekaran006@gmail.com",
+      "password": "1234",
+      "id": "DKQ_u1D9X_8"
+    },
+    {
+      "name": "guna",
+      "email": "gunasekaran006@gmail.com",
+      "password": "1234",
+      "id": "1GkEXOpqUwY"
+    },
+    {
+      "name": "guna",
+      "email": "gunasekaran006@gmail.com",
+      "password": "1234",
+      "id": "EPFsglb4ZWA"
+    }
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
+}

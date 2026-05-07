@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [login, setLogin] = useState({ email: '', password: '' });
+  const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -13,6 +15,7 @@ function Login() {
     
     if (user) {
       alert("Login Success!");
+      navigate('/home');
     } else {
       alert("Invalid User!");
     }

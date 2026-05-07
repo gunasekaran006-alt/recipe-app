@@ -13,23 +13,34 @@ function Signup() {
     if (response.ok) alert("Signup Success!");
   };
 
- return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#fdf6f0' }}>
-      <div style={{ background: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', width: '350px' }}>
-        <h2 style={{ textAlign: 'center', color: '#444' }}>Create Account</h2>
-        <form onSubmit={handleSignup} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <input type="text" placeholder="Full Name" style={inputStyle} onChange={(e) => setData({ ...data, name: e.target.value })} required />
-          <input type="email" placeholder="Email" style={inputStyle} onChange={(e) => setData({ ...data, email: e.target.value })} required />
-          <input type="password" placeholder="Password" style={inputStyle} onChange={(e) => setData({ ...data, password: e.target.value })} required />
-          <button type="submit" style={{ ...buttonStyle, backgroundColor: '#28a745' }}>Sign Up</button>
-        </form>
-        <p style={{ textAlign: 'center', marginTop: '15px' }}>Have an account? <a href="/login">Login</a></p>
+ // src/pages/Signup.jsx
+return (
+  <div className="container d-flex justify-content-center align-items-center vh-100">
+    <div className="card shadow-lg p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '15px' }}>
+      <h2 className="text-center mb-4 fw-bold text-success">Create Account</h2>
+      <form onSubmit={handleSignup}>
+        <div className="mb-3">
+          <label className="form-label">Full Name</label>
+          <input type="text" className="form-control" placeholder="John Doe" onChange={(e) => setData({ ...data, name: e.target.value })} required />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Email Address</label>
+          <input type="email" className="form-control" placeholder="name@example.com" onChange={(e) => setData({ ...data, email: e.target.value })} required />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Password</label>
+          <input type="password" className="form-control" placeholder="Min 6 characters" onChange={(e) => setData({ ...data, password: e.target.value })} required />
+        </div>
+        <button type="submit" className="btn btn-success btn-lg w-100 shadow-sm mt-2">Register</button>
+      </form>
+      <div className="text-center mt-4">
+        <span className="text-muted">Already have an account? </span>
+        <a href="/login" className="text-decoration-none fw-bold">Login</a>
       </div>
     </div>
-  );
+  </div>
+);
 }
-const inputStyle = { padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px' };
-const buttonStyle = { padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#ff6b6b', color: 'white', cursor: 'pointer', fontWeight: 'bold' };
 
 export default Signup;
 

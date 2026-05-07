@@ -1,35 +1,135 @@
 {
-  "users": [
+  "users": [],
+  "recipes": [
     {
-      "name": "sekar",
-      "email": "gunasekaran006@gmail.com",
-      "password": "12345",
-      "id": "2rTNXi8snKM"
+      "id": "1",
+      "name": "Chicken Biryani",
+      "category": "Non-Veg",
+      "image": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=500",
+      "ingredients": [
+        "Basmati Rice",
+        "Chicken",
+        "Spices",
+        "Yogurt"
+      ],
+      "instructions": "Marinate chicken, cook rice, layer them and steam."
     },
     {
-      "name": "sekar",
-      "email": "gunasekaran006@gmail.com",
-      "password": "12345",
-      "id": "dTKQ0nGAivA"
+      "id": "2",
+      "name": "Paneer Butter Masala",
+      "category": "Veg",
+      "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=500",
+      "ingredients": [
+        "Paneer",
+        "Tomato",
+        "Butter",
+        "Cream"
+      ],
+      "instructions": "Cook tomato gravy and add sautéed paneer with cream."
     },
     {
-      "name": "guna",
-      "email": "gunasekaran006@gmail.com",
-      "password": "1234",
-      "id": "DKQ_u1D9X_8"
+      "id": "3",
+      "name": "Margherita Pizza",
+      "category": "Italian",
+      "image": "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?q=80&w=500",
+      "ingredients": [
+        "Dough",
+        "Mozzarella",
+        "Basil",
+        "Tomato Sauce"
+      ],
+      "instructions": "Bake dough with sauce and cheese at 220°C."
     },
     {
-      "name": "guna",
-      "email": "gunasekaran006@gmail.com",
-      "password": "1234",
-      "id": "1GkEXOpqUwY"
+      "id": "4",
+      "name": "Masala Dosa",
+      "category": "South Indian",
+      "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=500",
+      "ingredients": [
+        "Rice Batter",
+        "Potato",
+        "Onion",
+        "Mustard Seeds"
+      ],
+      "instructions": "Spread batter, add potato filling, and fold."
     },
     {
-      "name": "guna",
-      "email": "gunasekaran006@gmail.com",
-      "password": "1234",
-      "id": "EPFsglb4ZWA"
+      "id": "5",
+      "name": "Mutton Rogan Josh",
+      "category": "Non-Veg",
+      "image": "https://images.unsplash.com/photo-1545247181-516773cae754?q=80&w=500",
+      "ingredients": [
+        "Mutton",
+        "Kashmiri Chillies",
+        "Yogurt",
+        "Ginger"
+      ],
+      "instructions": "Slow cook mutton with spices until tender."
+    },
+    {
+      "id": "6",
+      "name": "Vegetable Pasta",
+      "category": "Italian",
+      "image": "https://images.unsplash.com/photo-1473093226795-af9932fe5856?q=80&w=500",
+      "ingredients": [
+        "Pasta",
+        "Broccoli",
+        "Bell Peppers",
+        "Olive Oil"
+      ],
+      "instructions": "Boil pasta and toss with sautéed vegetables."
+    },
+    {
+      "id": "7",
+      "name": "Fish Curry",
+      "category": "Non-Veg",
+      "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=500",
+      "ingredients": [
+        "Fish",
+        "Coconut Milk",
+        "Tamarind",
+        "Chilly Powder"
+      ],
+      "instructions": "Simmer fish in spicy tamarind and coconut gravy."
+    },
+    {
+      "id": "8",
+      "name": "Gobi Manchurian",
+      "category": "Chinese",
+      "image": "https://images.unsplash.com/photo-1610450554561-26ec07f0f624?q=80&w=500",
+      "ingredients": [
+        "Cauliflower",
+        "Soy Sauce",
+        "Ginger",
+        "Garlic"
+      ],
+      "instructions": "Fry cauliflower florets and toss in spicy sauce."
+    },
+    {
+      "id": "9",
+      "name": "Gulab Jamun",
+      "category": "Dessert",
+      "image": "https://images.unsplash.com/photo-1589119908995-c6837fa14848?q=80&w=500",
+      "ingredients": [
+        "Milk Powder",
+        "Sugar",
+        "Cardamom",
+        "Ghee"
+      ],
+      "instructions": "Fry milk balls and soak in sugar syrup."
+    },
+    {
+      "id": "10",
+      "name": "Classic Burger",
+      "category": "Fast Food",
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=500",
+      "ingredients": [
+        "Bun",
+        "Patty",
+        "Cheese",
+        "Lettuce"
+      ],
+      "instructions": "Grill patty, layer with cheese and veggies in a bun."
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }

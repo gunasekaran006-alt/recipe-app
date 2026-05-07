@@ -20,20 +20,39 @@ function Login() {
 
   
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#fdf6f0' }}>
-      <div style={{ background: 'white', padding: '40px', borderRadius: '15px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', width: '350px' }}>
-        <h2 style={{ textAlign: 'center', color: '#444' }}>RecipeShare Login</h2>
-        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-          <input type="email" placeholder="Email" style={inputStyle} onChange={(e) => setLogin({...login, email: e.target.value})} required />
-          <input type="password" placeholder="Password" style={inputStyle} onChange={(e) => setLogin({...login, password: e.target.value})} required />
-          <button type="submit" style={buttonStyle}>Login</button>
-        </form>
-        <p style={{ textAlign: 'center', marginTop: '15px' }}>New here? <a href="/signup">Sign Up</a></p>
+  <div className="container d-flex justify-content-center align-items-center vh-100">
+    <div className="card shadow-lg p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '15px' }}>
+      <h2 className="text-center mb-4 fw-bold text-primary">RecipeShare Login</h2>
+      <form onSubmit={handleLogin}>
+        <div className="mb-3">
+          <label className="form-label">Email Address</label>
+          <input 
+            type="email" 
+            className="form-control form-control-lg" 
+            placeholder="example@mail.com" 
+            onChange={(e) => setLogin({...login, email: e.target.value})} 
+            required 
+          />
+        </div>
+        <div className="mb-3">
+          <label className="form-label">Password</label>
+          <input 
+            type="password" 
+            className="form-control form-control-lg" 
+            placeholder="••••••••" 
+            onChange={(e) => setLogin({...login, password: e.target.value})} 
+            required 
+          />
+        </div>
+        <button type="submit" className="btn btn-primary btn-lg w-100 shadow-sm mt-2">Login Now</button>
+      </form>
+      <div className="text-center mt-4">
+        <span className="text-muted">Don't have an account? </span>
+        <a href="/signup" className="text-decoration-none fw-bold">Sign Up</a>
       </div>
     </div>
-  );
+  </div>
+);
 }
 
-const inputStyle = { padding: '12px', borderRadius: '8px', border: '1px solid #ddd', fontSize: '16px' };
-const buttonStyle = { padding: '12px', borderRadius: '8px', border: 'none', backgroundColor: '#ff6b6b', color: 'white', cursor: 'pointer', fontWeight: 'bold' };
 export default Login;

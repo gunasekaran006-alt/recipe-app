@@ -1,5 +1,12 @@
 {
-  "users": [],
+  "users": [
+    {
+      "name": "guna",
+      "email": "gunasekaran006@gmail.com",
+      "password": "1234",
+      "id": "_iEbhhFHNus"
+    }
+  ],
   "recipes": [
     {
       "id": "1",
@@ -131,5 +138,6 @@
       ],
       "instructions": "Grill patty, layer with cheese and veggies in a bun."
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

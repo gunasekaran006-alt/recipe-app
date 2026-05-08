@@ -1,12 +1,5 @@
 {
-  "users": [
-    {
-      "name": "guna",
-      "email": "gunasekaran006@gmail.com",
-      "password": "1234",
-      "id": "_iEbhhFHNus"
-    }
-  ],
+  "users": [],
   "recipes": [
     {
       "id": "1",
@@ -19,7 +12,14 @@
         "Spices",
         "Yogurt"
       ],
-      "instructions": "Marinate chicken, cook rice, layer them and steam."
+      "instructions": "Marinate chicken, cook rice, layer them and steam.",
+      "time": "45 mins",
+      "servings": "4 Servings",
+      "rating": 5,
+      "reviews": 184,
+      "difficulty": "Hard",
+      "author": "Chef Kumar",
+      "description": "Rich and flavorful layered Indian rice dish served with marinated chicken and aromatic spices."
     },
     {
       "id": "2",
@@ -32,7 +32,14 @@
         "Butter",
         "Cream"
       ],
-      "instructions": "Cook tomato gravy and add sautéed paneer with cream."
+      "instructions": "Cook tomato gravy and add sautéed paneer with cream.",
+      "time": "30 mins",
+      "servings": "3 Servings",
+      "rating": 4,
+      "reviews": 95,
+      "difficulty": "Medium",
+      "author": "Chef Priya",
+      "description": "Succulent paneer cubes cooked in a rich, creamy, and mildly sweet tomato-based gravy."
     },
     {
       "id": "3",
@@ -45,7 +52,14 @@
         "Basil",
         "Tomato Sauce"
       ],
-      "instructions": "Bake dough with sauce and cheese at 220°C."
+      "instructions": "Bake dough with sauce and cheese at 220°C.",
+      "time": "20 mins",
+      "servings": "2 Servings",
+      "rating": 5,
+      "reviews": 150,
+      "difficulty": "Easy",
+      "author": "Chef Rossi",
+      "description": "Simple yet classic Italian pizza topped with fresh tomato sauce, mozzarella cheese, and sweet basil."
     },
     {
       "id": "4",
@@ -58,7 +72,14 @@
         "Onion",
         "Mustard Seeds"
       ],
-      "instructions": "Spread batter, add potato filling, and fold."
+      "instructions": "Spread batter, add potato filling, and fold.",
+      "time": "15 mins",
+      "servings": "2 Servings",
+      "rating": 4,
+      "reviews": 210,
+      "difficulty": "Medium",
+      "author": "Chef Guna",
+      "description": "Crispy thin rice crêpe filled with a delicious, spiced potato mash and served with chutneys."
     },
     {
       "id": "5",
@@ -71,7 +92,14 @@
         "Yogurt",
         "Ginger"
       ],
-      "instructions": "Slow cook mutton with spices until tender."
+      "instructions": "Slow cook mutton with spices until tender.",
+      "time": "60 mins",
+      "servings": "5 Servings",
+      "rating": 5,
+      "reviews": 78,
+      "difficulty": "Hard",
+      "author": "Chef Khan",
+      "description": "Aromatic Kashmiri mutton dish slow-cooked with a rich gravy of yogurt and traditional spices."
     },
     {
       "id": "6",
@@ -84,7 +112,14 @@
         "Bell Peppers",
         "Olive Oil"
       ],
-      "instructions": "Boil pasta and toss with sautéed vegetables."
+      "instructions": "Boil pasta and toss with sautéed vegetables.",
+      "time": "25 mins",
+      "servings": "3 Servings",
+      "rating": 4,
+      "reviews": 64,
+      "difficulty": "Easy",
+      "author": "Chef Smith",
+      "description": "Healthy and vibrant pasta tossed with colorful sautéed seasonal vegetables and olive oil."
     },
     {
       "id": "7",
@@ -97,7 +132,14 @@
         "Tamarind",
         "Chilly Powder"
       ],
-      "instructions": "Simmer fish in spicy tamarind and coconut gravy."
+      "instructions": "Simmer fish in spicy tamarind and coconut gravy.",
+      "time": "35 mins",
+      "servings": "4 Servings",
+      "rating": 5,
+      "reviews": 112,
+      "difficulty": "Medium",
+      "author": "Chef Nair",
+      "description": "Coastal-style fish cooked in a tangy tamarind base and enriched with smooth coconut milk."
     },
     {
       "id": "8",
@@ -110,7 +152,14 @@
         "Ginger",
         "Garlic"
       ],
-      "instructions": "Fry cauliflower florets and toss in spicy sauce."
+      "instructions": "Fry cauliflower florets and toss in spicy sauce.",
+      "time": "30 mins",
+      "servings": "3 Servings",
+      "rating": 4,
+      "reviews": 140,
+      "difficulty": "Medium",
+      "author": "Chef Lee",
+      "description": "Crispy deep-fried cauliflower florets tossed in a sweet, tangy, and hot Indo-Chinese sauce."
     },
     {
       "id": "9",
@@ -123,7 +172,14 @@
         "Cardamom",
         "Ghee"
       ],
-      "instructions": "Fry milk balls and soak in sugar syrup."
+      "instructions": "Fry milk balls and soak in sugar syrup.",
+      "time": "25 mins",
+      "servings": "6 Servings",
+      "rating": 5,
+      "reviews": 320,
+      "difficulty": "Easy",
+      "author": "Chef Sharma",
+      "description": "Soft and delicious berry-sized milk balls fried in ghee and soaked in sweet rose-scented cardamom syrup."
     },
     {
       "id": "10",
@@ -136,8 +192,14 @@
         "Cheese",
         "Lettuce"
       ],
-      "instructions": "Grill patty, layer with cheese and veggies in a bun."
+      "instructions": "Grill patty, layer with cheese and veggies in a bun.",
+      "time": "20 mins",
+      "servings": "1 Serving",
+      "rating": 4,
+      "reviews": 175,
+      "difficulty": "Easy",
+      "author": "Chef Burger",
+      "description": "Juicy grilled patty layered with melted cheese, fresh lettuce, and savory sauces inside a toasted bun."
     }
-  ],
-  "$schema": "./node_modules/json-server/schema.json"
+  ]
 }

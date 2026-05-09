@@ -27,11 +27,8 @@ function Navbar() {
                 🏠 Home
               </Link>
             </li>
-            <li className="nav-item">
-              <Link className="nav-link fw-semibold px-3 d-flex align-items-center gap-2" to="/home">
-                🔍 Browse
-              </Link>
-            </li>
+            
+            
             <li className="nav-item">
               <Link className="nav-link fw-semibold px-3 d-flex align-items-center gap-2" to="/home">
                 ❤️ Favorites

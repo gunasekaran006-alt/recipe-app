@@ -1,5 +1,12 @@
 {
-  "users": [],
+  "users": [
+    {
+      "name": "guna",
+      "email": "gunasekaran006@gmail.com",
+      "password": "1234",
+      "id": "wpvVtHzvUws"
+    }
+  ],
   "recipes": [
     {
       "id": "1",
@@ -201,5 +208,6 @@
       "author": "Chef Burger",
       "description": "Juicy grilled patty layered with melted cheese, fresh lettuce, and savory sauces inside a toasted bun."
     }
-  ]
+  ],
+  "$schema": "./node_modules/json-server/schema.json"
 }

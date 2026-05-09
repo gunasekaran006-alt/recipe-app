@@ -8,11 +8,22 @@ function Home() {
     const [recipes, setRecipes] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const [favorites, setFavorites] = useState([]);
+
+    // Toggle recipe in and out of favorites list
+    const toggleFavorite = (recipeId) => {
+        if (favorites.includes(recipeId)) {
+            setFavorites(favorites.filter(id => id !== recipeId));
+        } else {
+            setFavorites([...favorites, recipeId]);
+        }
+    };
 
     useEffect(() => {
         getRecipes().then(data => setRecipes(data));
     }, []);
 
+    // Filter recipes based on search input and category selection
     const filteredRecipes = recipes.filter(r =>
         r.name.toLowerCase().includes(search.toLowerCase()) ||
         r.category.toLowerCase().includes(search.toLowerCase())
@@ -27,7 +38,7 @@ function Home() {
                 <div className="text-center py-5 bg-white mb-4 shadow-sm" style={{ borderRadius: '0 0 50px 50px' }}>
                     <h1 className="fw-bold text-primary display-4">Discover Delicious Recipes</h1>
                     <p className="text-muted fs-5">Find the best recipes for your favorite dishes</p>
-                    
+
                     {/* Stats Panel */}
                     <div className="row justify-content-center mt-4 g-3 px-3">
                         {[{ label: 'Recipes', val: '1.2K+' }, { label: 'Active Cooks', val: '5K+' }, { label: 'Reviews', val: '10K+' }].map((item, i) => (
@@ -40,12 +51,12 @@ function Home() {
                 </div>
 
                 <div className="container py-2">
-                    {/* 1. Search Bar at the TOP */}
+                    {/* 1. Search Bar */}
                     <div className="mb-4">
                         <SearchBar search={search} setSearch={setSearch} />
                     </div>
 
-                    {/* 2. Category Filters right below search bar */}
+                    {/* 2. Category Filters */}
                     <div className="d-flex justify-content-center flex-wrap gap-2 mb-5">
                         {['All', 'Veg', 'Non-Veg', 'Italian', 'South Indian', 'Chinese', 'Dessert', 'Fast Food'].map(cat => (
                             <button
@@ -63,7 +74,13 @@ function Home() {
                         <h3 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">Featured Recipes</h3>
                         <div className="row">
                             {filteredRecipes.slice(0, 3).map(recipe => (
-                                <RecipeCard key={recipe.id} recipe={recipe} setSelectedRecipe={setSelectedRecipe} />
+                                <RecipeCard 
+                                    key={recipe.id} 
+                                    recipe={recipe} 
+                                    setSelectedRecipe={setSelectedRecipe}
+                                    isFavorite={favorites.includes(recipe.id)}
+                                    onFavoriteToggle={toggleFavorite}
+                                />
                             ))}
                         </div>
                     </div>
@@ -73,7 +90,13 @@ function Home() {
                         <h3 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">Trending Recipes</h3>
                         <div className="row">
                             {filteredRecipes.slice(3, 6).map(recipe => (
-                                <RecipeCard key={recipe.id} recipe={recipe} setSelectedRecipe={setSelectedRecipe} />
+                                <RecipeCard 
+                                    key={recipe.id} 
+                                    recipe={recipe} 
+                                    setSelectedRecipe={setSelectedRecipe}
+                                    isFavorite={favorites.includes(recipe.id)}
+                                    onFavoriteToggle={toggleFavorite}
+                                />
                             ))}
                         </div>
                     </div>
@@ -103,9 +126,9 @@ function Home() {
                                     <div className="col-md-7">
                                         <h2 className="fw-bold text-primary mb-3">{selectedRecipe.name}</h2>
                                         <div className="d-flex gap-3 mb-3 text-muted small fw-bold">
-                                            <span>⏱️ {selectedRecipe.time}</span>
-                                            <span>👥 {selectedRecipe.servings}</span>
-                                            <span>⭐ {selectedRecipe.rating}.0 ({selectedRecipe.reviews} reviews)</span>
+                                            <span>⏱️ {selectedRecipe.time || 'N/A'}</span>
+                                            <span>👥 {selectedRecipe.servings || 'N/A'}</span>
+                                            <span>⭐ {selectedRecipe.rating ? `${selectedRecipe.rating}.0` : '0.0'} ({selectedRecipe.reviews || 0} reviews)</span>
                                         </div>
                                         <h5 className="fw-bold mb-2">Ingredients:</h5>
                                         <ul className="text-muted small">

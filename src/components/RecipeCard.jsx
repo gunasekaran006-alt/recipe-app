@@ -1,6 +1,6 @@
 import React from 'react';
 
-function RecipeCard({ recipe, setSelectedRecipe }) {
+function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle }) {
   // Logic to render stars based on recipe.rating dynamically
   const renderStars = (rating) => {
     const stars = [];
@@ -23,14 +23,29 @@ function RecipeCard({ recipe, setSelectedRecipe }) {
         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
       >
-        {/* Recipe Image & Difficulty Badge on Top Right */}
+        {/* Recipe Image, Favorite Button & Difficulty Badge */}
         <div className="position-relative">
           <img src={recipe.image} className="card-img-top" style={{ height: '220px', objectFit: 'cover' }} alt={recipe.name} />
-          {recipe.difficulty && (
-            <span className="badge bg-white text-dark shadow-sm rounded-pill position-absolute top-0 end-0 m-3 px-3 py-1.5 fw-semibold fs-7 opacity-90">
-              {recipe.difficulty}
-            </span>
-          )}
+          
+          <div className="position-absolute top-0 end-0 m-3 d-flex gap-2" style={{ zIndex: '10' }}>
+            {/* Heart Toggle Button */}
+            <button 
+              className="btn btn-sm btn-light rounded-circle shadow-sm opacity-90 d-flex align-items-center justify-content-center" 
+              style={{ width: '35px', height: '35px', border: 'none' }}
+              onClick={(e) => {
+                e.stopPropagation(); // Prevents opening the modal when clicking the heart icon
+                onFavoriteToggle(recipe.id);
+              }}
+            >
+              {isFavorite ? '❤️' : '🤍'}
+            </button>
+
+            {recipe.difficulty && (
+              <span className="badge bg-white text-dark shadow-sm rounded-pill px-3 py-2 small fw-semibold opacity-90 d-flex align-items-center">
+                {recipe.difficulty}
+              </span>
+            )}
+          </div>
         </div>
         
         <div className="card-body p-3 d-flex flex-column justify-content-between">

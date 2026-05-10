@@ -92,13 +92,63 @@ function Home() {
             <Navbar />
 
             <div className="flex-grow-1">
-                {/* Hero Section */}
-                <div className="text-center py-5 bg-white mb-4 shadow-sm" style={{ borderRadius: '0 0 50px 50px' }}>
-                    <h1 className="fw-bold text-primary display-4">Discover Delicious Recipes</h1>
-                    <p className="text-muted fs-5">Find the best recipes for your favorite dishes</p>
+                {/* Hero Section with Integrated Search & Filters */}
+                <div className="text-center pt-5 pb-4 bg-white mb-4 shadow-sm" style={{ borderRadius: '0 0 50px 50px' }}>
+                    
+                    {/* Title & Search Bar inside Container (W: 800px) */}
+                    <div className="container" style={{ maxWidth: '800px' }}>
+                        <h1 className="fw-bold text-primary display-4">Discover Delicious Recipes</h1>
+                        <p className="text-muted fs-5 mb-4">Find the best recipes for your favorite dishes</p>
+
+                        {/* Search Bar */}
+                        <div className="mb-4 px-3">
+                            <SearchBar search={search} setSearch={setSearch} />
+                        </div>
+                    </div>
+
+                    {/* FIXED: Smooth Horizontal Scroll Container for Categories with Custom Visible Scrollbar */}
+                    <div className="w-100 mb-4 px-3">
+                        <div 
+                            className="d-flex align-items-center justify-content-start justify-content-md-center gap-2 overflow-x-auto custom-scrollbar" 
+                            style={{ 
+                                whiteSpace: 'nowrap', 
+                                WebkitOverflowScrolling: 'touch', // Smooth momentum scrolling for iOS Devices
+                                paddingBottom: '12px' // Gives breathing room for the custom scrollbar
+                            }}
+                        >
+                            {/* Custom CSS to style the scrollbar beautifully on Laptop/Desktop */}
+                            <style>{`
+                                .custom-scrollbar::-webkit-scrollbar {
+                                    height: 5px; /* Height of the horizontal scrollbar */
+                                }
+                                .custom-scrollbar::-webkit-scrollbar-track {
+                                    background: #f1f1f1; /* Color of the scrollbar track */
+                                    border-radius: 10px;
+                                }
+                                .custom-scrollbar::-webkit-scrollbar-thumb {
+                                    background: #0d6efd; /* Theme Primary color for the scroll thumb */
+                                    border-radius: 10px;
+                                }
+                                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                                    background: #0b5ed7; /* Darker blue on hover */
+                                }
+                            `}</style>
+
+                            {['All', 'Veg', 'Non-Veg', 'Italian', 'South Indian', 'Chinese', 'Dessert', 'Fast Food'].map(cat => (
+                                <button
+                                    key={cat}
+                                    className={`btn btn-sm rounded-pill px-4 fw-semibold shadow-sm ${search === cat || (cat === 'All' && search === "") ? 'btn-primary' : 'btn-outline-primary bg-white text-dark'}`}
+                                    style={{ flexShrink: 0 }} // Keeps buttons from squishing or resizing
+                                    onClick={() => cat === 'All' ? setSearch("") : setSearch(cat)}
+                                >
+                                    {cat}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
 
                     {/* Stats Panel */}
-                    <div className="row justify-content-center mt-4 g-3 px-3">
+                    <div className="row justify-content-center mt-3 g-3 px-3 border-top pt-3 mx-auto" style={{ maxWidth: '900px' }}>
                         {[{ label: 'Recipes', val: '1.2K+' }, { label: 'Active Cooks', val: '5K+' }, { label: 'Reviews', val: '10K+' }].map((item, i) => (
                             <div className="col-md-2 col-4 border-end" key={i}>
                                 <h4 className="fw-bold text-primary mb-0">{item.val}</h4>
@@ -109,25 +159,7 @@ function Home() {
                 </div>
 
                 <div className="container py-2">
-                    {/* 1. Search Bar */}
-                    <div className="mb-4">
-                        <SearchBar search={search} setSearch={setSearch} />
-                    </div>
-
-                    {/* 2. Category Filters */}
-                    <div className="d-flex justify-content-center flex-wrap gap-2 mb-5">
-                        {['All', 'Veg', 'Non-Veg', 'Italian', 'South Indian', 'Chinese', 'Dessert', 'Fast Food'].map(cat => (
-                            <button
-                                key={cat}
-                                className={`btn btn-sm rounded-pill px-4 fw-semibold shadow-sm ${search === cat || (cat === 'All' && search === "") ? 'btn-primary' : 'btn-outline-primary bg-white text-dark'}`}
-                                onClick={() => cat === 'All' ? setSearch("") : setSearch(cat)}
-                            >
-                                {cat}
-                            </button>
-                        ))}
-                    </div>
-
-                    {/* 3. Featured Section */}
+                    {/* Featured Section */}
                     <div className="my-5">
                         <h3 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">Featured Recipes</h3>
                         <div className="row">
@@ -143,7 +175,7 @@ function Home() {
                         </div>
                     </div>
 
-                    {/* 4. Trending Section */}
+                    {/* Trending Section */}
                     <div className="my-5">
                         <h3 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">Trending Recipes</h3>
                         <div className="row">
@@ -159,7 +191,7 @@ function Home() {
                         </div>
                     </div>
 
-                    {/* 5. Promotional Banner */}
+                    {/* Promotional Banner */}
                     <div className="p-5 bg-primary text-white text-center rounded-4 shadow-lg my-5">
                         <h2 className="fw-bold mb-3">Ready to Share Your Own Recipe?</h2>
                         <p className="mb-4 opacity-75">Upload your dishes and inspire food lovers across the world.</p>
@@ -317,15 +349,15 @@ function Home() {
                 </div>
             )}
 
-            {/* Render Add Recipe Modal Component with editRecipe prop support */}
+            {/* Render Add Recipe Modal */}
             <AddRecipeModal 
                 show={showAddModal} 
                 onClose={() => {
                     setShowAddModal(false);
-                    setEditRecipe(null); // Resets Edit Mode state on Close
+                    setEditRecipe(null);
                 }} 
                 onAddRecipe={handleAddNewRecipe} 
-                editRecipe={editRecipe} // Prop to pass recipe details for pre-filling
+                editRecipe={editRecipe}
             />
         </div>
     );

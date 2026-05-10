@@ -3,12 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 function Navbar() {
   const navigate = useNavigate();
 
-  // FIXED: Modified logout function to securely clear session and redirect
+  // FIXED: Removed the second annoying "Logged out successfully" alert
   const handleLogout = () => {
     if (window.confirm("Are you sure you want to logout?")) {
       sessionStorage.clear(); // Clears "isLoggedIn" and "user" session securely
-      alert("Logged out successfully!");
-      navigate('/login');
+      navigate('/login'); // Redirects directly to login page without second popup
     }
   };
 
@@ -33,7 +32,6 @@ function Navbar() {
             </li>
 
             <li className="nav-item">
-              {/* FIXED: Changed to="/home" to to="/favorites" */}
               <Link className="nav-link fw-semibold px-3 d-flex align-items-center gap-2" to="/favorites">
                 ❤️ Favorites
               </Link>

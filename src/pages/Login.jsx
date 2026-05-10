@@ -14,8 +14,10 @@ function Login() {
     const user = users.find(u => u.email === login.email && u.password === login.password);
     
     if (user) {
-      alert("Login Success!");
-      // FIXED: Save login session securely when successfully validated
+      // FIXED: Modified success alert to dynamically greet the user with their registered name
+      alert(`Welcome, ${user.name || 'Chef'}!`); 
+      
+      // Save login session securely
       sessionStorage.setItem("isLoggedIn", "true");
       sessionStorage.setItem("user", JSON.stringify(user));
       navigate('/home');

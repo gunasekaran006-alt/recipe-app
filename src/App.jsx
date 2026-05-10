@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import Favorites from './pages/Favorites'; // FIXED: Added Favorites import here
 import Footer from './components/Footer';
 
 function App() {
@@ -17,8 +18,8 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Home />} />
             
-            {/* Temporary route for Favorites - can be updated in Review 3 */}
-            <Route path="/favorites" element={<Home />} />
+            {/* FIXED: Changed element={<Home />} to element={<Favorites />} */}
+            <Route path="/favorites" element={<Favorites />} />
             
             {/* Redirect any unknown paths to login */}
             <Route path="*" element={<Navigate to="/login" />} />

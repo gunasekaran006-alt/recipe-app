@@ -28,9 +28,9 @@ function Navbar() {
               </Link>
             </li>
             
-            
             <li className="nav-item">
-              <Link className="nav-link fw-semibold px-3 d-flex align-items-center gap-2" to="/home">
+              {/* FIXED: Changed to="/home" to to="/favorites" */}
+              <Link className="nav-link fw-semibold px-3 d-flex align-items-center gap-2" to="/favorites">
                 ❤️ Favorites
               </Link>
             </li>
@@ -48,8 +48,8 @@ function Navbar() {
                 👤 Profile
               </a>
               <ul className="dropdown-menu shadow border-0 mt-2" aria-labelledby="navbarDropdown">
-                <li><Link className="dropdown-item py-2" to="/home">My Account</Link></li>
-                <li><Link className="dropdown-item py-2" to="/home">Settings</Link></li>
+                <li><Link className="dropdown-item py-2" to="/profile">My Account</Link></li>
+                <li><Link className="dropdown-item py-2" to="/settings">Settings</Link></li>
                 <li><hr className="dropdown-divider" /></li>
                 <li><button className="dropdown-item py-2 text-danger fw-bold" onClick={handleLogout}>Logout</button></li>
               </ul>
@@ -58,7 +58,7 @@ function Navbar() {
 
           {/* Action Button */}
           <div className="d-flex align-items-center">
-            <Link to="/home" className="btn btn-primary rounded-pill px-4 btn-sm fw-bold shadow-sm d-flex align-items-center gap-2">
+            <Link to="/add-recipe" className="btn btn-primary rounded-pill px-4 btn-sm fw-bold shadow-sm d-flex align-items-center gap-2">
               <span>➕</span> Add Recipe
             </Link>
           </div>

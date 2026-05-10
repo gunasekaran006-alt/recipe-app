@@ -8,15 +8,23 @@ function Home() {
     const [recipes, setRecipes] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedRecipe, setSelectedRecipe] = useState(null);
-    const [favorites, setFavorites] = useState([]);
+    const [favorites, setFavorites] = useState(() => {
+        const saved = localStorage.getItem('recipe_favorites');
+        // Load and ensure all stored IDs are strictly saved as strings
+        return saved ? JSON.parse(saved).map(String) : [];
+    });
 
-    // Toggle recipe in and out of favorites list
+    // Toggle recipe in and out of favorites list with safe string conversion
     const toggleFavorite = (recipeId) => {
-        if (favorites.includes(recipeId)) {
-            setFavorites(favorites.filter(id => id !== recipeId));
+        const targetId = String(recipeId);
+        let updatedFavorites;
+        if (favorites.includes(targetId)) {
+            updatedFavorites = favorites.filter(id => id !== targetId);
         } else {
-            setFavorites([...favorites, recipeId]);
+            updatedFavorites = [...favorites, targetId];
         }
+        setFavorites(updatedFavorites);
+        localStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
     };
 
     useEffect(() => {
@@ -74,11 +82,11 @@ function Home() {
                         <h3 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">Featured Recipes</h3>
                         <div className="row">
                             {filteredRecipes.slice(0, 3).map(recipe => (
-                                <RecipeCard 
-                                    key={recipe.id} 
-                                    recipe={recipe} 
+                                <RecipeCard
+                                    key={recipe.id}
+                                    recipe={recipe}
                                     setSelectedRecipe={setSelectedRecipe}
-                                    isFavorite={favorites.includes(recipe.id)}
+                                    isFavorite={favorites.includes(String(recipe.id))} // Strict String Check
                                     onFavoriteToggle={toggleFavorite}
                                 />
                             ))}
@@ -90,11 +98,11 @@ function Home() {
                         <h3 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">Trending Recipes</h3>
                         <div className="row">
                             {filteredRecipes.slice(3, 6).map(recipe => (
-                                <RecipeCard 
-                                    key={recipe.id} 
-                                    recipe={recipe} 
+                                <RecipeCard
+                                    key={recipe.id}
+                                    recipe={recipe}
                                     setSelectedRecipe={setSelectedRecipe}
-                                    isFavorite={favorites.includes(recipe.id)}
+                                    isFavorite={favorites.includes(String(recipe.id))} // Strict String Check
                                     onFavoriteToggle={toggleFavorite}
                                 />
                             ))}

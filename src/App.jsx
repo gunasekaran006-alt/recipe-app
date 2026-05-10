@@ -4,9 +4,10 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Favorites from './pages/Favorites';
-import Profile from './pages/Profile'; // FIXED: Added Profile import
-import Settings from './pages/Settings'; // FIXED: Added Settings import
+import Profile from './pages/Profile'; 
+import Settings from './pages/Settings'; 
 import Footer from './components/Footer';
+import ProtectedRoute from './components/ProtectedRoute'; // Import ProtectedRoute
 
 function App() {
   return (
@@ -18,12 +19,40 @@ function App() {
             <Route path="/" element={<Navigate to="/login" />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/favorites" element={<Favorites />} />
             
-            {/* FIXED: Added routes for Profile and Settings */}
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/settings" element={<Settings />} />
+            {/* All protected routes inside ProtectedRoute wrapper */}
+            <Route 
+              path="/home" 
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/favorites" 
+              element={
+                <ProtectedRoute>
+                  <Favorites />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile" 
+              element={
+                <ProtectedRoute>
+                  <Profile />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/settings" 
+              element={
+                <ProtectedRoute>
+                  <Settings />
+                </ProtectedRoute>
+              } 
+            />
             
             {/* Redirect any unknown paths to login */}
             <Route path="*" element={<Navigate to="/login" />} />

@@ -2,8 +2,8 @@ import React from 'react';
 import { Navigate } from 'react-router-dom';
 
 function ProtectedRoute({ children }) {
-  // Check if user is logged in (using localStorage)
-  const isAuthenticated = localStorage.getItem("isLoggedIn") === "true";
+  // Check if user is logged in (using sessionStorage or localStorage)
+  const isAuthenticated = sessionStorage.getItem("isLoggedIn") === "true";
 
   // If not logged in, redirect them to the Login page automatically
   if (!isAuthenticated) {

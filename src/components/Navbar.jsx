@@ -3,9 +3,13 @@ import { Link, useNavigate } from 'react-router-dom';
 function Navbar() {
   const navigate = useNavigate();
 
+  // FIXED: Modified logout function to securely clear session and redirect
   const handleLogout = () => {
-    alert("Logged out successfully!");
-    navigate('/login');
+    if (window.confirm("Are you sure you want to logout?")) {
+      sessionStorage.clear(); // Clears "isLoggedIn" and "user" session securely
+      alert("Logged out successfully!");
+      navigate('/login');
+    }
   };
 
   return (

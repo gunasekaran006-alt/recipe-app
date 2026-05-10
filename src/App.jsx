@@ -3,7 +3,9 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Home from './pages/Home';
-import Favorites from './pages/Favorites'; // FIXED: Added Favorites import here
+import Favorites from './pages/Favorites';
+import Profile from './pages/Profile'; // FIXED: Added Profile import
+import Settings from './pages/Settings'; // FIXED: Added Settings import
 import Footer from './components/Footer';
 
 function App() {
@@ -17,9 +19,11 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Home />} />
-            
-            {/* FIXED: Changed element={<Home />} to element={<Favorites />} */}
             <Route path="/favorites" element={<Favorites />} />
+            
+            {/* FIXED: Added routes for Profile and Settings */}
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/settings" element={<Settings />} />
             
             {/* Redirect any unknown paths to login */}
             <Route path="*" element={<Navigate to="/login" />} />

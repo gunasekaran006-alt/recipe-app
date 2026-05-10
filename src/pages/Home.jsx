@@ -2,15 +2,17 @@ import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import RecipeCard from '../components/RecipeCard';
 import SearchBar from '../components/SearchBar';
+import AddRecipeModal from '../components/AddRecipeModal';
 import { getRecipes } from '../services/api';
 
 function Home() {
     const [recipes, setRecipes] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedRecipe, setSelectedRecipe] = useState(null);
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [editRecipe, setEditRecipe] = useState(null); // State to store recipe being edited
     const [favorites, setFavorites] = useState(() => {
         const saved = localStorage.getItem('recipe_favorites');
-        // Load and ensure all stored IDs are strictly saved as strings
         return saved ? JSON.parse(saved).map(String) : [];
     });
 
@@ -29,6 +31,19 @@ function Home() {
 
     useEffect(() => {
         getRecipes().then(data => setRecipes(data));
+
+        // Listen for the custom event emitted by Navbar to open the modal
+        const handleOpenModal = () => {
+            setEditRecipe(null); // Ensure we are in "Add Mode" when opened from navbar
+            setShowAddModal(true);
+        };
+
+        window.addEventListener("openAddRecipeModal", handleOpenModal);
+
+        // Cleanup the event listener on component unmount
+        return () => {
+            window.removeEventListener("openAddRecipeModal", handleOpenModal);
+        };
     }, []);
 
     // Filter recipes based on search input and category selection
@@ -36,6 +51,41 @@ function Home() {
         r.name.toLowerCase().includes(search.toLowerCase()) ||
         r.category.toLowerCase().includes(search.toLowerCase())
     );
+
+    // Handles both Add and Update actions dynamically
+    const handleAddNewRecipe = (recipeData) => {
+        if (editRecipe) {
+            // EDIT MODE: Update existing recipe in state
+            const updatedRecipes = recipes.map(recipe => 
+                recipe.id === recipeData.id ? recipeData : recipe
+            );
+            setRecipes(updatedRecipes);
+            setEditRecipe(null);
+            alert("Recipe Updated Successfully!");
+        } else {
+            // ADD MODE: Push new recipe to state
+            setRecipes([recipeData, ...recipes]);
+            alert("New Recipe Added Successfully!");
+        }
+        setShowAddModal(false);
+    };
+
+    // DELETE FUNCTION: Delete recipe from local state
+    const handleDeleteRecipe = (recipeId) => {
+        if (window.confirm("Are you sure you want to delete this recipe?")) {
+            const updatedRecipes = recipes.filter(recipe => recipe.id !== recipeId);
+            setRecipes(updatedRecipes);
+            setSelectedRecipe(null);
+            alert("Recipe Deleted Successfully!");
+        }
+    };
+
+    // EDIT FUNCTION: Prepares form in Edit Mode and triggers modal
+    const handleEditRecipe = (recipe) => {
+        setEditRecipe(recipe); // Store active recipe to edit
+        setSelectedRecipe(null); // Close active view modal
+        setShowAddModal(true); // Open form modal
+    };
 
     return (
         <div className="bg-light min-vh-100 d-flex flex-column">
@@ -86,7 +136,7 @@ function Home() {
                                     key={recipe.id}
                                     recipe={recipe}
                                     setSelectedRecipe={setSelectedRecipe}
-                                    isFavorite={favorites.includes(String(recipe.id))} // Strict String Check
+                                    isFavorite={favorites.includes(String(recipe.id))}
                                     onFavoriteToggle={toggleFavorite}
                                 />
                             ))}
@@ -102,7 +152,7 @@ function Home() {
                                     key={recipe.id}
                                     recipe={recipe}
                                     setSelectedRecipe={setSelectedRecipe}
-                                    isFavorite={favorites.includes(String(recipe.id))} // Strict String Check
+                                    isFavorite={favorites.includes(String(recipe.id))}
                                     onFavoriteToggle={toggleFavorite}
                                 />
                             ))}
@@ -113,7 +163,7 @@ function Home() {
                     <div className="p-5 bg-primary text-white text-center rounded-4 shadow-lg my-5">
                         <h2 className="fw-bold mb-3">Ready to Share Your Own Recipe?</h2>
                         <p className="mb-4 opacity-75">Upload your dishes and inspire food lovers across the world.</p>
-                        <button className="btn btn-light rounded-pill px-5 fw-bold text-primary">Get Started</button>
+                        <button className="btn btn-light rounded-pill px-5 fw-bold text-primary" onClick={() => setShowAddModal(true)}>Get Started</button>
                     </div>
                 </div>
             </div>
@@ -121,29 +171,144 @@ function Home() {
             {/* Selected Recipe Modal */}
             {selectedRecipe && (
                 <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(5px)', zIndex: '1050' }}>
-                    <div className="modal-dialog modal-dialog-centered modal-lg">
-                        <div className="modal-content border-0" style={{ borderRadius: '25px' }}>
-                            <div className="modal-header border-0 pb-0">
-                                <button className="btn-close shadow-none" onClick={() => setSelectedRecipe(null)}></button>
+                    <div className="modal-dialog modal-dialog-centered modal-xl">
+                        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden', maxHeight: '92vh' }}>
+                            {/* Close Button overlaying the layout */}
+                            <div className="modal-header border-0 pb-0 position-absolute end-0 top-0" style={{ zIndex: '10' }}>
+                                <button className="btn-close bg-white rounded-circle p-2 m-2 shadow-sm" onClick={() => setSelectedRecipe(null)}></button>
                             </div>
-                            <div className="modal-body p-4 pt-0">
-                                <div className="row">
-                                    <div className="col-md-5">
-                                        <img src={selectedRecipe.image} className="img-fluid shadow-sm" style={{ borderRadius: '15px', width: '100%', height: '280px', objectFit: 'cover' }} alt={selectedRecipe.name} />
+                            
+                            <div className="modal-body p-0">
+                                <div className="row g-0 align-items-stretch">
+                                    
+                                    {/* Left Side: Recipe Image Container */}
+                                    <div className="col-lg-7 d-flex">
+                                        <img 
+                                            src={selectedRecipe.image} 
+                                            alt={selectedRecipe.name}
+                                            className="w-100" 
+                                            style={{ 
+                                                objectFit: 'cover', 
+                                                objectPosition: 'center', 
+                                                minHeight: '450px' 
+                                            }} 
+                                        />
                                     </div>
-                                    <div className="col-md-7">
-                                        <h2 className="fw-bold text-primary mb-3">{selectedRecipe.name}</h2>
-                                        <div className="d-flex gap-3 mb-3 text-muted small fw-bold">
-                                            <span>⏱️ {selectedRecipe.time || 'N/A'}</span>
-                                            <span>👥 {selectedRecipe.servings || 'N/A'}</span>
-                                            <span>⭐ {selectedRecipe.rating ? `${selectedRecipe.rating}.0` : '0.0'} ({selectedRecipe.reviews || 0} reviews)</span>
+                                    
+                                    {/* Right Side: Recipe Details with Smooth Internal Scroll */}
+                                    <div 
+                                        className="col-lg-5 p-4 p-md-5 bg-white d-flex flex-column justify-content-between" 
+                                        style={{ 
+                                            maxHeight: '92vh', 
+                                            overflowY: 'auto',
+                                            scrollbarWidth: 'thin'
+                                        }}
+                                    >
+                                        <div>
+                                            {/* Category Tag */}
+                                            <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3 fs-8 fw-bold text-uppercase tracking-wider">
+                                                🏷️ {selectedRecipe.category}
+                                            </span>
+                                            
+                                            {/* Recipe Name */}
+                                            <h2 className="fw-extrabold text-dark mb-2 fs-2 lh-sm">{selectedRecipe.name}</h2>
+                                            
+                                            {/* Author and Reviews */}
+                                            <div className="d-flex align-items-center gap-2 mb-3">
+                                                <span className="text-muted small">By <strong className="text-dark">{selectedRecipe.author || 'Chef'}</strong></span>
+                                                <span className="text-muted">•</span>
+                                                <span className="text-warning small">⭐ {selectedRecipe.rating ? selectedRecipe.rating + '.0' : '0.0'} ({selectedRecipe.reviews || 0} reviews)</span>
+                                            </div>
+
+                                            {/* Short Description */}
+                                            <p className="text-secondary small mb-4 lh-base">{selectedRecipe.description}</p>
+
+                                            {/* Cook Time & Servings Balanced Cards */}
+                                            <div className="row g-2 mb-4">
+                                                <div className="col-6">
+                                                    <div className="bg-light p-3 rounded-3 border border-light-subtle text-center">
+                                                        <span className="d-block text-muted small fw-semibold">⏱️ Cook Time</span>
+                                                        <span className="text-dark fw-bold">{selectedRecipe.time || 'N/A'}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="col-6">
+                                                    <div className="bg-light p-3 rounded-3 border border-light-subtle text-center">
+                                                        <span className="d-block text-muted small fw-semibold">👥 Servings</span>
+                                                        <span className="text-dark fw-bold">{selectedRecipe.servings || 'N/A'}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Nutrition Facts Section */}
+                                            <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
+                                                🍏 Nutrition Facts <small className="text-muted fw-normal">(Per Serving)</small>
+                                            </h6>
+                                            <div className="row g-2 mb-4">
+                                                <div className="col-3">
+                                                    <div className="p-2 rounded-3 text-center" style={{ backgroundColor: '#fff5f5', border: '1px solid #ffe3e3' }}>
+                                                        <small className="text-danger d-block fw-bold" style={{ fontSize: '10px' }}>CALORIES</small>
+                                                        <strong className="text-danger" style={{ fontSize: '13px' }}>{selectedRecipe.nutrition ? selectedRecipe.nutrition.calories : '280 kcal'}</strong>
+                                                    </div>
+                                                </div>
+                                                <div className="col-3">
+                                                    <div className="p-2 rounded-3 text-center" style={{ backgroundColor: '#f0fdf4', border: '1px solid #dcfce7' }}>
+                                                        <small className="text-success d-block fw-bold" style={{ fontSize: '10px' }}>PROTEIN</small>
+                                                        <strong className="text-success" style={{ fontSize: '13px' }}>{selectedRecipe.nutrition ? selectedRecipe.nutrition.protein : '12g'}</strong>
+                                                    </div>
+                                                </div>
+                                                <div className="col-3">
+                                                    <div className="p-2 rounded-3 text-center" style={{ backgroundColor: '#fefce8', border: '1px solid #fef08a' }}>
+                                                        <small className="text-warning-dark d-block fw-bold" style={{ fontSize: '10px', color: '#856404' }}>CARBS</small>
+                                                        <strong style={{ fontSize: '13px', color: '#856404' }}>{selectedRecipe.nutrition ? selectedRecipe.nutrition.carbs : '35g'}</strong>
+                                                    </div>
+                                                </div>
+                                                <div className="col-3">
+                                                    <div className="p-2 rounded-3 text-center" style={{ backgroundColor: '#f0f9ff', border: '1px solid #e0f2fe' }}>
+                                                        <small className="text-info d-block fw-bold" style={{ fontSize: '10px' }}>FAT</small>
+                                                        <strong className="text-info" style={{ fontSize: '13px' }}>{selectedRecipe.nutrition ? selectedRecipe.nutrition.fat : '8g'}</strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Ingredients Section */}
+                                            <h6 className="fw-bold text-dark mb-3">🛒 Ingredients:</h6>
+                                            <ul className="list-unstyled mb-4">
+                                                {selectedRecipe.ingredients && Array.isArray(selectedRecipe.ingredients) ? (
+                                                    selectedRecipe.ingredients.map((ing, i) => (
+                                                        <li key={i} className="d-flex align-items-center gap-2 mb-2 text-secondary small">
+                                                            <span className="text-success fw-bold">✔️</span> {ing}
+                                                        </li>
+                                                    ))
+                                                ) : (
+                                                    <li className="text-muted small">No ingredients listed.</li>
+                                                )}
+                                            </ul>
+
+                                            {/* Instructions Box */}
+                                            <h6 className="fw-bold text-dark mb-3">🍳 Step-by-Step Instructions:</h6>
+                                            <div className="bg-light p-3 rounded-3 border-start border-primary border-4 mb-4">
+                                                <p className="text-secondary small lh-relaxed mb-0" style={{ whiteSpace: 'pre-line' }}>
+                                                    {selectedRecipe.instructions}
+                                                </p>
+                                            </div>
+
+                                            {/* Edit & Delete Action Buttons */}
+                                            <div className="d-flex gap-2 pt-3 border-top mt-4">
+                                                <button 
+                                                    className="btn btn-outline-secondary flex-grow-1 rounded-pill fw-bold py-2 btn-sm"
+                                                    onClick={() => handleEditRecipe(selectedRecipe)}
+                                                >
+                                                    ✏️ Edit Recipe
+                                                </button>
+                                                <button 
+                                                    className="btn btn-danger flex-grow-1 rounded-pill fw-bold py-2 btn-sm"
+                                                    onClick={() => handleDeleteRecipe(selectedRecipe.id)}
+                                                >
+                                                    🗑️ Delete Recipe
+                                                </button>
+                                            </div>
+
                                         </div>
-                                        <h5 className="fw-bold mb-2">Ingredients:</h5>
-                                        <ul className="text-muted small">
-                                            {selectedRecipe.ingredients.map((ing, i) => <li key={i}>{ing}</li>)}
-                                        </ul>
-                                        <h5 className="fw-bold mt-4 mb-2">Instructions:</h5>
-                                        <p className="text-muted small bg-light p-3 rounded">{selectedRecipe.instructions}</p>
                                     </div>
                                 </div>
                             </div>
@@ -151,6 +316,17 @@ function Home() {
                     </div>
                 </div>
             )}
+
+            {/* Render Add Recipe Modal Component with editRecipe prop support */}
+            <AddRecipeModal 
+                show={showAddModal} 
+                onClose={() => {
+                    setShowAddModal(false);
+                    setEditRecipe(null); // Resets Edit Mode state on Close
+                }} 
+                onAddRecipe={handleAddNewRecipe} 
+                editRecipe={editRecipe} // Prop to pass recipe details for pre-filling
+            />
         </div>
     );
 }

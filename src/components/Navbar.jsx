@@ -15,7 +15,7 @@ function Navbar() {
         <Link className="navbar-brand fw-bold text-primary fs-3 d-flex align-items-center gap-2" to="/home">
           <span className="fs-2">🍳</span> RecipeShare
         </Link>
-        
+
         <button className="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -27,22 +27,22 @@ function Navbar() {
                 🏠 Home
               </Link>
             </li>
-            
+
             <li className="nav-item">
               {/* FIXED: Changed to="/home" to to="/favorites" */}
               <Link className="nav-link fw-semibold px-3 d-flex align-items-center gap-2" to="/favorites">
                 ❤️ Favorites
               </Link>
             </li>
-            
+
             {/* Profile Dropdown with Icon */}
             <li className="nav-item dropdown">
-              <a 
-                className="nav-link fw-semibold px-3 dropdown-toggle d-flex align-items-center gap-2" 
-                href="#" 
-                id="navbarDropdown" 
-                role="button" 
-                data-bs-toggle="dropdown" 
+              <a
+                className="nav-link fw-semibold px-3 dropdown-toggle d-flex align-items-center gap-2"
+                href="#"
+                id="navbarDropdown"
+                role="button"
+                data-bs-toggle="dropdown"
                 aria-expanded="false"
               >
                 👤 Profile
@@ -56,11 +56,18 @@ function Navbar() {
             </li>
           </ul>
 
-          {/* Action Button */}
+          {/* Action Button - Emits a custom event to open Add Recipe modal */}
           <div className="d-flex align-items-center">
-            <Link to="/add-recipe" className="btn btn-primary rounded-pill px-4 btn-sm fw-bold shadow-sm d-flex align-items-center gap-2">
+            <button
+              onClick={() => {
+                // Dispatches a global custom event
+                const event = new CustomEvent("openAddRecipeModal");
+                window.dispatchEvent(event);
+              }}
+              className="btn btn-primary rounded-pill px-4 btn-sm fw-bold shadow-sm d-flex align-items-center gap-2"
+            >
               <span>➕</span> Add Recipe
-            </Link>
+            </button>
           </div>
         </div>
       </div>

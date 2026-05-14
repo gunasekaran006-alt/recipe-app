@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+
+// Import React Toastify
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Home from './pages/Home';
@@ -37,21 +42,18 @@ function App() {
   }, []);
 
   const handleSaveRecipe = async (recipeData) => {
-    // Prevent multiple clicks
     if (isSaving) return; 
     setIsSaving(true);
     setShowAddModal(false); 
 
     if (editRecipe) {
-      alert("Recipe Updated Successfully!");
+      toast.success("Recipe Updated Successfully!");
+      setTimeout(() => window.location.reload(), 1500);
     } else {
       try {
-        // Remove 'id' if it exists in the form data so the DB can generate its own random ID
         const { id, ...cleanData } = recipeData;
-
         const finalRecipe = { ...cleanData };
 
-        // Smart Category Image Logic
         if (!finalRecipe.image || finalRecipe.image.includes("random") || finalRecipe.image === "") {
           const category = (finalRecipe.category || "").toLowerCase();
           if (category.includes("veg") && !category.includes("non")) {
@@ -65,23 +67,43 @@ function App() {
           }
         }
 
-        // Send data directly to DB, let json-server handle the ID creation
         const savedRecipe = await createRecipe(finalRecipe);
-        alert(`New Recipe added successfully with Auto-Generated ID: ${savedRecipe.id}`);
+        
+        // Show success toast
+        toast.success(`Recipe added perfectly!`);
+        
+        // Wait 1.5 seconds so the user can see the toast, then reload
+        setTimeout(() => {
+            window.location.reload(); 
+        }, 1500);
 
       } catch (error) {
-        alert("API Error: Failed to save recipe!");
+        // Show error toast
+        toast.error("Failed to save recipe! Please try again.");
         console.error(error);
       }
     }
     
     setEditRecipe(null);
     setIsSaving(false);
-    window.location.reload(); 
   };
 
   return (
     <BrowserRouter>
+      {/* ToastContainer must be included once in your app to render the toasts */}
+      <ToastContainer 
+        position="top-right" 
+        autoClose={1500} 
+        hideProgressBar={false} 
+        newestOnTop={true} 
+        closeOnClick 
+        rtl={false} 
+        pauseOnFocusLoss 
+        draggable 
+        pauseOnHover 
+        theme="colored" 
+      />
+
       <div className="d-flex flex-column min-vh-100">
         <div className="flex-grow-1">
           <Routes>

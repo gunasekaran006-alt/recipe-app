@@ -63,7 +63,7 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle })
               {recipe.description}
             </p>
 
-            {/* Time & Servings - Directly from DB (No random values) */}
+            {/* Time & Servings - Directly from DB */}
             <div className="d-flex gap-4 text-muted mb-3" style={{ fontSize: '13px' }}>
               <span>⏱️ {recipe.time || 'N/A'}</span>
               <span>👥 {recipe.servings || 'N/A'}</span>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import { toast } from 'react-toastify';
 
 function Signup() {
   const [data, setData] = useState({ name: '', email: '', password: '' });
@@ -8,18 +8,23 @@ function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:3000/users', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (response.ok) {
-      alert("Signup Success!");
-      navigate('/login')
+    try {
+      const response = await fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (response.ok) {
+        toast.success("Account created successfully! 🎉");
+        navigate('/login');
+      } else {
+        toast.error("Failed to create account.");
+      }
+    } catch (error) {
+      toast.error("Server error. Please ensure json-server is running.");
     }
   };
 
-  // src/pages/Signup.jsx
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card shadow-lg p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '15px' }}>
@@ -49,4 +54,3 @@ function Signup() {
 }
 
 export default Signup;
-

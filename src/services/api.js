@@ -1,25 +1,34 @@
 const API_URL = 'http://localhost:3000/recipes';
 
+// Fetch all recipes
 export const getRecipes = async () => {
-  const response = await fetch(API_URL);
-  return await response.json();
+    const response = await fetch(API_URL);
+    return await response.json();
 };
 
-export const createRecipe = async (recipeData) => {
-  const response = await fetch(API_URL, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(recipeData),
-  });
-  return await response.json();
+// Add a new recipe
+export const createRecipe = async (recipe) => {
+    const response = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(recipe),
+    });
+    return await response.json();
 };
 
-// FIXED: New function to delete recipe permanently from db.json
+// Update an existing recipe (NEWLY ADDED)
+export const updateRecipe = async (id, updatedRecipe) => {
+    const response = await fetch(`${API_URL}/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedRecipe),
+    });
+    return await response.json();
+};
+
+// Delete a recipe
 export const deleteRecipe = async (id) => {
-  const response = await fetch(`${API_URL}/${id}`, {
-    method: 'DELETE',
-  });
-  return await response.json();
+    await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+    });
 };

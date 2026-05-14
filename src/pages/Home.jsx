@@ -3,13 +3,18 @@ import Navbar from '../components/Navbar';
 import RecipeCard from '../components/RecipeCard';
 import HeroSection from '../components/HeroSection';
 import RecipeDetailModal from '../components/RecipeDetailModal';
-// FIXED: Imported deleteRecipe from api.js
 import { getRecipes, deleteRecipe } from '../services/api';
+import { toast } from 'react-toastify';
 
 function Home() {
     const [recipes, setRecipes] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedRecipe, setSelectedRecipe] = useState(null);
+    
+    // States for Custom Delete Confirmation Modal
+    const [recipeToDelete, setRecipeToDelete] = useState(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+
     const [favorites, setFavorites] = useState(() => {
         const saved = localStorage.getItem('recipe_favorites');
         return saved ? JSON.parse(saved).map(String) : [];
@@ -38,22 +43,31 @@ function Home() {
         r.category.toLowerCase().includes(search.toLowerCase())
     );
 
-    // FIXED: Made function async to call the database DELETE API
-    const handleDeleteRecipe = async (recipeId) => {
-        if (window.confirm("Are you sure you want to delete this recipe?")) {
+    // 1. Triggered when Delete is clicked in the Detail Modal
+    const handleDeleteRecipe = (recipeId) => {
+        setRecipeToDelete(recipeId);
+        setShowConfirmModal(true); // Open the custom confirm modal
+    };
+
+    // 2. Actual Delete Execution after confirming "Yes"
+    const confirmAndExecuteDelete = async () => {
+        if (recipeToDelete) {
             try {
-                // 1. Delete permanently from db.json
-                await deleteRecipe(recipeId);
+                await deleteRecipe(recipeToDelete);
                 
-                // 2. Remove from React local state so UI updates instantly
-                const updatedRecipes = recipes.filter(recipe => recipe.id !== recipeId);
+                // Update UI State
+                const updatedRecipes = recipes.filter(recipe => recipe.id !== String(recipeToDelete) && recipe.id !== Number(recipeToDelete));
                 setRecipes(updatedRecipes);
-                setSelectedRecipe(null); // Close the modal
+                setSelectedRecipe(null); 
                 
-                alert("Recipe Deleted Successfully from Database!");
+                toast.success("Recipe deleted successfully! 🗑️");
             } catch (error) {
-                alert("Failed to delete recipe from database!");
-                console.error(error);
+                toast.error("Failed to delete recipe. Please try again.");
+                console.error("Delete Error:", error);
+            } finally {
+                // Close the modal and reset state
+                setShowConfirmModal(false);
+                setRecipeToDelete(null);
             }
         }
     };
@@ -71,7 +85,7 @@ function Home() {
         .slice(0, 3);
 
     return (
-        <div className="bg-light min-vh-100 d-flex flex-column">
+        <div className="bg-light min-vh-100 d-flex flex-column position-relative">
             <Navbar />
 
             <div className="flex-grow-1">
@@ -188,12 +202,36 @@ function Home() {
                 </div>
             </div>
 
+            {/* Recipe Detail Modal */}
             <RecipeDetailModal 
                 selectedRecipe={selectedRecipe}
                 onClose={() => setSelectedRecipe(null)}
                 onEdit={handleEditRecipe}
                 onDelete={handleDeleteRecipe}
             />
+
+            {/* Custom Delete Confirmation Modal */}
+            {showConfirmModal && (
+                <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1100 }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content border-0 rounded-4 shadow-lg">
+                            <div className="modal-body p-4 text-center">
+                                <div className="display-4 text-danger mb-3">⚠️</div>
+                                <h4 className="fw-bold text-dark">Are you sure?</h4>
+                                <p className="text-muted">Do you really want to delete this recipe? This action cannot be undone.</p>
+                                <div className="d-flex justify-content-center gap-3 mt-4">
+                                    <button className="btn btn-light px-4 fw-bold border" onClick={() => setShowConfirmModal(false)}>
+                                        Cancel
+                                    </button>
+                                    <button className="btn btn-danger px-4 fw-bold shadow-sm" onClick={confirmAndExecuteDelete}>
+                                        Yes, Delete It
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

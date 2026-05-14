@@ -1,7 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-
-// Import React Toastify
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -14,7 +12,9 @@ import Settings from './pages/Settings';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AddRecipeModal from './components/AddRecipeModal'; 
-import { getRecipes, createRecipe } from './services/api'; 
+
+// Make sure updateRecipe is imported here
+import { getRecipes, createRecipe, updateRecipe } from './services/api'; 
 
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -46,64 +46,67 @@ function App() {
     setIsSaving(true);
     setShowAddModal(false); 
 
-    if (editRecipe) {
-      toast.success("Recipe Updated Successfully!");
-      setTimeout(() => window.location.reload(), 1500);
-    } else {
-      try {
-        const { id, ...cleanData } = recipeData;
-        const finalRecipe = { ...cleanData };
+    try {
+      const { id, ...cleanData } = recipeData;
 
-        if (!finalRecipe.image || finalRecipe.image.includes("random") || finalRecipe.image === "") {
-          const category = (finalRecipe.category || "").toLowerCase();
-          if (category.includes("veg") && !category.includes("non")) {
-            finalRecipe.image = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop"; 
-          } else if (category.includes("non")) {
-            finalRecipe.image = "https://images.unsplash.com/photo-1606728035253-49e190477c8e?q=80&w=600&auto=format&fit=crop"; 
-          } else if (category.includes("dessert") || category.includes("sweet")) {
-            finalRecipe.image = "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=600&auto=format&fit=crop"; 
-          } else {
-            finalRecipe.image = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600&auto=format&fit=crop"; 
-          }
+      // Generate our own custom ID to ensure it stays at the top of the object
+      const customId = "rec_" + Math.random().toString(36).substr(2, 9);
+
+      // Place 'id' as the FIRST property in the final object
+      const finalRecipe = { 
+        id: editRecipe ? editRecipe.id : customId, 
+        ...cleanData 
+      };
+
+      // Smart Category Image Logic
+      if (!finalRecipe.image || finalRecipe.image.includes("random") || finalRecipe.image === "") {
+        const category = (finalRecipe.category || "").toLowerCase();
+        if (category.includes("veg") && !category.includes("non")) {
+          finalRecipe.image = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop"; 
+        } else if (category.includes("non")) {
+          finalRecipe.image = "https://images.unsplash.com/photo-1606728035253-49e190477c8e?q=80&w=600&auto=format&fit=crop"; 
+        } else if (category.includes("dessert") || category.includes("sweet")) {
+          finalRecipe.image = "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=600&auto=format&fit=crop"; 
+        } else {
+          finalRecipe.image = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600&auto=format&fit=crop"; 
         }
-
-        const savedRecipe = await createRecipe(finalRecipe);
-        
-        // Show success toast
-        toast.success(`Recipe added perfectly!`);
-        
-        // Wait 1.5 seconds so the user can see the toast, then reload
-        setTimeout(() => {
-            window.location.reload(); 
-        }, 1500);
-
-      } catch (error) {
-        // Show error toast
-        toast.error("Failed to save recipe! Please try again.");
-        console.error(error);
       }
+
+      if (editRecipe) {
+        // UPDATE LOGIC
+        await updateRecipe(editRecipe.id, finalRecipe);
+        toast.success("Recipe Updated Successfully! ✏️");
+      } else {
+        // CREATE LOGIC
+        await createRecipe(finalRecipe);
+        toast.success("Recipe added perfectly! ✨");
+      }
+
+      setTimeout(() => {
+          window.location.reload(); 
+      }, 1500);
+
+    } catch (error) {
+      toast.error("Failed to save recipe! Please try again.");
+      console.error("Save Error:", error);
+    } finally {
+      setEditRecipe(null);
+      setIsSaving(false);
     }
-    
-    setEditRecipe(null);
-    setIsSaving(false);
   };
 
   return (
     <BrowserRouter>
-      {/* ToastContainer must be included once in your app to render the toasts */}
+      {/* Global Toast Container */}
       <ToastContainer 
         position="top-right" 
         autoClose={1500} 
         hideProgressBar={false} 
         newestOnTop={true} 
         closeOnClick 
-        rtl={false} 
-        pauseOnFocusLoss 
-        draggable 
-        pauseOnHover 
         theme="colored" 
       />
-
+      
       <div className="d-flex flex-column min-vh-100">
         <div className="flex-grow-1">
           <Routes>

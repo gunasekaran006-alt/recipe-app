@@ -1,62 +1,135 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 
 function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
-  const [newRecipe, setNewRecipe] = useState({
+  // 💡 FIX 1: Everything is completely empty now! No old data.
+  const emptyFormState = {
     name: "",
     category: "Veg",
-    image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=500", // Default image
+    image: "", 
     ingredients: "",
     instructions: "",
-    time: "30 mins",
-    servings: "2 Servings",
+    time: "",
+    servings: "",
     rating: 5,
     reviews: 1,
     difficulty: "Medium",
-    author: "Chef Guna",
+    author: "",
     description: "",
-    calories: "280 kcal",
-    protein: "12g",
-    carbs: "35g",
-    fat: "8g"
-  });
+    calories: "",
+    protein: "",
+    carbs: "",
+    fat: ""
+  };
 
-  // Effect to load existing recipe details when in Edit Mode
+  const [newRecipe, setNewRecipe] = useState(emptyFormState);
+  const [isAILoading, setIsAILoading] = useState(false);
+
   useEffect(() => {
     if (editRecipe) {
       setNewRecipe({
         ...editRecipe,
         ingredients: editRecipe.ingredients ? editRecipe.ingredients.join(', ') : "",
-        calories: editRecipe.nutrition ? editRecipe.nutrition.calories : "280 kcal",
-        protein: editRecipe.nutrition ? editRecipe.nutrition.protein : "12g",
-        carbs: editRecipe.nutrition ? editRecipe.nutrition.carbs : "35g",
-        fat: editRecipe.nutrition ? editRecipe.nutrition.fat : "8g"
+        calories: editRecipe.nutrition ? editRecipe.nutrition.calories : "",
+        protein: editRecipe.nutrition ? editRecipe.nutrition.protein : "",
+        carbs: editRecipe.nutrition ? editRecipe.nutrition.carbs : "",
+        fat: editRecipe.nutrition ? editRecipe.nutrition.fat : ""
       });
     } else {
-      // Reset to default empty form when in Add Mode
-      setNewRecipe({
-        name: "",
-        category: "Veg",
-        image: "https://images.unsplash.com/photo-1490645935967-10de6ba17061?q=80&w=500",
-        ingredients: "",
-        instructions: "",
-        time: "30 mins",
-        servings: "2 Servings",
-        rating: 5,
-        reviews: 1,
-        difficulty: "Medium",
-        author: "Chef Guna",
-        description: "",
-        calories: "280 kcal",
-        protein: "12g",
-        carbs: "35g",
-        fat: "8g"
-      });
+      // Reset to completely empty form when in Add Mode
+      setNewRecipe(emptyFormState);
     }
   }, [editRecipe, show]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewRecipe({ ...newRecipe, [name]: value });
+  };
+
+  // 🪄 Gemini AI Magic Fill Logic
+  const handleMagicFill = async () => {
+    if (!newRecipe.name.trim()) {
+      toast.warning("Please enter a Recipe Name first! (e.g., Mutton Biryani)");
+      return;
+    }
+
+    setIsAILoading(true);
+
+    try {
+      const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
+      
+      if (!API_KEY || API_KEY === "your_google_gemini_api_key_here") {
+        toast.error("⚠️ Missing Gemini API Key! Please check your .env file.");
+        setIsAILoading(false);
+        return; 
+      }
+
+      toast.info("AI is cooking up the details... 🪄");
+      
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+
+      const promptText = `
+        I am building a recipe sharing application. Provide realistic recipe details for a dish named "${newRecipe.name}".
+        Return ONLY a valid JSON object with the exact structure below. Do not include any markdown tags like \`\`\`json.
+        {
+          "category": "Veg, Non-Veg, Dessert, Italian, South Indian, Chinese, or Fast Food",
+          "description": "A catchy, delicious 2-line description of the dish",
+          "time": "e.g., 30 mins",
+          "servings": "e.g., 2 Servings",
+          "difficulty": "Easy, Medium, or Hard",
+          "ingredients": "Comma-separated list of 5-7 main ingredients",
+          "instructions": "Brief step-by-step cooking instructions in 3 simple sentences.",
+          "calories": "e.g. 350 kcal",
+          "protein": "e.g. 15g",
+          "carbs": "e.g. 45g",
+          "fat": "e.g. 12g"
+        }
+      `;
+
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      
+      let text = data.candidates[0].content.parts[0].text;
+      text = text.replace(/```json/g, "").replace(/```/g, "").trim();
+      const aiData = JSON.parse(text);
+
+      // 💡 FIX 2: We use Pollinations AI, but if it breaks, the user can just clear the text box!
+      const dynamicImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(newRecipe.name + " delicious dish food photography")}?width=600&height=400&nologo=true`;
+
+      setNewRecipe(prev => ({
+        ...prev,
+        category: aiData.category || "Veg",
+        description: aiData.description || "",
+        time: aiData.time || "",
+        servings: aiData.servings || "",
+        difficulty: aiData.difficulty || "Medium",
+        ingredients: aiData.ingredients || "",
+        instructions: aiData.instructions || "",
+        calories: aiData.calories || "",
+        protein: aiData.protein || "",
+        carbs: aiData.carbs || "",
+        fat: aiData.fat || "",
+        image: dynamicImageUrl 
+      }));
+
+      toast.success("✨ Magic Fill Ready!");
+    } catch (error) {
+      console.error("Gemini AI Error:", error);
+      toast.error("AI couldn't generate details. Please check your API key or network.");
+    } finally {
+      setIsAILoading(false);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -69,7 +142,7 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
     const recipeToAdd = {
       ...newRecipe,
-      id: editRecipe ? editRecipe.id : String(Date.now()), // Keeps the same ID if editing
+      id: editRecipe ? editRecipe.id : String(Date.now()), 
       ingredients: ingredientsArray,
       nutrition: {
         calories: newRecipe.calories || "N/A",
@@ -79,7 +152,7 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
       }
     };
 
-    onAddRecipe(recipeToAdd); // Sends data back to Home.jsx
+    onAddRecipe(recipeToAdd); 
   };
 
   if (!show) return null;
@@ -99,7 +172,18 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label className="form-label small fw-bold">Recipe Name</label>
-                  <input type="text" name="name" className="form-control rounded-3" placeholder="e.g. Garlic Butter Shrimp" required value={newRecipe.name} onChange={handleInputChange} />
+                  <div className="d-flex gap-2">
+                    <input type="text" name="name" className="form-control rounded-3" placeholder="e.g. Garlic Butter Shrimp" required value={newRecipe.name} onChange={handleInputChange} />
+                    <button 
+                      type="button" 
+                      className="btn btn-warning btn-sm rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center px-3" 
+                      onClick={handleMagicFill} 
+                      disabled={isAILoading}
+                      style={{ minWidth: '100px' }}
+                    >
+                      {isAILoading ? <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> : '🪄 AI Fill'}
+                    </button>
+                  </div>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label small fw-bold">Category</label>
@@ -141,7 +225,6 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
                 <textarea name="instructions" className="form-control rounded-3" rows="3" placeholder="Step 1: Melt butter... Step 2: Add garlic..." required value={newRecipe.instructions} onChange={handleInputChange}></textarea>
               </div>
 
-              {/* Nutritional Info Form Fields */}
               <h5 className="fw-bold text-dark mt-4 mb-3 border-bottom pb-2">Nutritional Information</h5>
               <div className="row mb-3 g-2">
                 <div className="col-3">
@@ -160,6 +243,11 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
                   <label className="form-label small fw-semibold">Fat</label>
                   <input type="text" name="fat" className="form-control rounded-3 form-control-sm" placeholder="e.g. 12g" value={newRecipe.fat} onChange={handleInputChange} />
                 </div>
+              </div>
+
+              <div className="mb-4">
+                <label className="form-label small fw-bold">Image URL (Auto-filled by AI - Clear this box to use default category image)</label>
+                <input type="text" name="image" className="form-control rounded-3" placeholder="Leave empty for auto category image" value={newRecipe.image} onChange={handleInputChange} />
               </div>
 
               <div className="text-end mt-4">

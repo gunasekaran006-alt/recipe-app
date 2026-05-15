@@ -4,13 +4,7 @@
       "name": "guna",
       "email": "gunasekaran006@gmail.com",
       "password": "1234",
-      "id": "XfeosX8sHhI"
-    },
-    {
-      "name": "guna",
-      "email": "gunasekaran006@gmail.com",
-      "password": "1234",
-      "id": "vT77c8FiKa8"
+      "id": "SkvOsPGJIIg"
     }
   ],
   "recipes": [
@@ -145,14 +139,24 @@
         "Tamarind",
         "Chilly Powder"
       ],
-      "instructions": "Simmer fish in spicy tamarind and coconut gravy.",
+      "instructions": "Simmer fish in spicy tamarind and coconut gravy.aaa",
       "time": "35 mins",
       "servings": "4 Servings",
       "rating": 5,
       "reviews": 112,
       "difficulty": "Medium",
       "author": "Chef Nair",
-      "description": "Coastal-style fish cooked in a tangy tamarind base and enriched with smooth coconut milk."
+      "description": "Coastal-style fish cooked in a tangy tamarind base and enriched with smooth coconut milk.",
+      "calories": "280 kcal",
+      "protein": "12g",
+      "carbs": "35g",
+      "fat": "8g",
+      "nutrition": {
+        "calories": "280 kcal",
+        "protein": "12g",
+        "carbs": "35g",
+        "fat": "8g"
+      }
     },
     {
       "id": "8",

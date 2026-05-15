@@ -67,7 +67,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
       toast.info("AI is cooking up the details & image... 🪄");
       
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
+      // 💡 THE ULTIMATE FIX: Correct model (gemini-2.5-flash) is added back!
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
 
       const promptText = `
         I am building a recipe sharing application. Provide realistic recipe details for a dish named "${newRecipe.name}".

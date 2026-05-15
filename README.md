@@ -1,16 +1,35 @@
-# React + Vite
+# 🍳 AI-Powered Recipe Hub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+An interactive, AI-integrated Recipe Sharing Platform built with React.js. This application simplifies recipe management by leveraging Google's Gemini AI to automatically generate comprehensive recipe details and a smart hybrid image system for accurate food photography.
 
-Currently, two official plugins are available:
+## ✨ Key Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+* **🪄 AI Magic Fill:** Enter a dish name and click "AI Fill". The app uses **Google Gemini 2.5 Flash** to instantly generate ingredients, cooking instructions, prep time, and difficulty levels.
+* **📊 Nutritional Dashboard:** Automatically calculates and displays Calories, Protein, Carbs, and Fats for every generated recipe.
+* **📸 Smart Hybrid Image Search:** Uses a custom fallback algorithm to fetch beautiful food photography. It searches a localized database for regional Indian foods first, falling back to the **Unsplash API** for global cuisines, ensuring zero miss-matched images.
+* **✏️ Complete Recipe Management:** Perform full CRUD operations (Create, Read, Update, Delete) on your recipe collection.
+* **📱 Responsive UI/UX:** Built with Bootstrap to ensure a flawless experience across mobile, tablet, and desktop devices.
+* **🔒 Secure Architecture:** Strict environment variable (`.env`) management to protect sensitive API keys.
 
-## React Compiler
+## 🛠️ Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **Frontend:** React.js (Vite)
+* **Styling:** Bootstrap 5 & Custom CSS
+* **Generative AI:** Google Gemini 2.5 Flash API
+* **Image Delivery:** Unsplash API & Local Dictionary
+* **Backend / Database:** JSON-Server
+* **State Management:** React Hooks (`useState`, `useEffect`)
 
-## Expanding the ESLint configuration
+## 🚀 Getting Started
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Prerequisites
+* Node.js installed on your local machine.
+* A free [Google Gemini API Key](https://aistudio.google.com/).
+* A free [Unsplash Developer Access Key](https://unsplash.com/developers).
+
+### Installation & Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone [https://github.com/yourusername/recipe-ai-hub.git](https://github.com/yourusername/recipe-ai-hub.git)
+   cd recipe-ai-hub

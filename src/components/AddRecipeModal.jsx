@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
-  // 💡 Form is completely empty by default
   const emptyFormState = {
     name: "",
     category: "Veg",
@@ -45,31 +44,30 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
     setNewRecipe({ ...newRecipe, [name]: value });
   };
 
-  // 🪄 Gemini AI Magic Fill + Dynamic Real-time Image Logic
+  // 🪄 Smart Logic: Gemini for Text + Smart Unsplash Search
   const handleMagicFill = async () => {
     if (!newRecipe.name.trim()) {
-      toast.warning("Please enter a Recipe Name first! (e.g., Mutton Biryani)");
+      toast.warning("Please enter a Recipe Name first! (e.g., Masala Dosa)");
       return;
     }
 
     setIsAILoading(true);
-    // Clear the image immediately so the user sees the loading state
     setNewRecipe(prev => ({ ...prev, image: "" })); 
 
     try {
-      const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
-      
-      if (!API_KEY || API_KEY === "your_google_gemini_api_key_here") {
-        toast.error("⚠️ Missing Gemini API Key! Please check your .env file.");
+      const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
+      const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY; 
+
+      if (!GEMINI_API_KEY || !UNSPLASH_ACCESS_KEY) {
+        toast.error("⚠️ Missing API Keys! Please check your .env file.");
         setIsAILoading(false);
         return; 
       }
 
-      toast.info("AI is cooking up the details & image... 🪄");
+      toast.info("AI is cooking details & finding the best photo... 🪄📸");
       
-      // 💡 THE ULTIMATE FIX: Correct model (gemini-2.5-flash) is added back!
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
-
+      // 1. Get Text from Gemini
+      const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
       const promptText = `
         I am building a recipe sharing application. Provide realistic recipe details for a dish named "${newRecipe.name}".
         Return ONLY a valid JSON object with the exact structure below. Do not include any markdown tags like \`\`\`json.
@@ -88,23 +86,40 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         }
       `;
 
-      const response = await fetch(url, {
+      const geminiResponse = await fetch(geminiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to fetch from Gemini API`);
+      if (!geminiResponse.ok) throw new Error("Gemini API call failed");
+      const geminiData = await geminiResponse.json();
+      let geminiText = geminiData.candidates[0].content.parts[0].text;
+      geminiText = geminiText.replace(/```json/g, "").replace(/```/g, "").trim();
+      const aiData = JSON.parse(geminiText);
+
+      // 2. Smart Unsplash Search
+      let recipeImageUrl = "";
+      
+      // Attempt 1: Search exact food name
+      let unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(newRecipe.name)}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1`;
+      let unsplashResponse = await fetch(unsplashUrl);
+      let unsplashData = await unsplashResponse.json();
+
+      if (unsplashData.results && unsplashData.results.length > 0) {
+        recipeImageUrl = unsplashData.results[0].urls.regular; 
+      } else {
+        // Attempt 2 (Fallback): If exact food is not found, search by Category
+        console.log(`Unsplash didn't have ${newRecipe.name}, searching for ${aiData.category} food instead...`);
+        let fallbackQuery = `${aiData.category} delicious food`;
+        let fallbackUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(fallbackQuery)}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1`;
+        let fallbackResponse = await fetch(fallbackUrl);
+        let fallbackData = await fallbackResponse.json();
+        
+        if (fallbackData.results && fallbackData.results.length > 0) {
+          recipeImageUrl = fallbackData.results[0].urls.regular;
+        }
       }
-
-      const data = await response.json();
-      let text = data.candidates[0].content.parts[0].text;
-      text = text.replace(/```json/g, "").replace(/```/g, "").trim();
-      const aiData = JSON.parse(text);
-
-      // 💡 DYNAMIC IMAGE based on typed food name
-      const dynamicImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(newRecipe.name + " delicious dish food photography close up high resolution")}?width=600&height=400&nologo=true`;
 
       setNewRecipe(prev => ({
         ...prev,
@@ -119,13 +134,13 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         protein: aiData.protein || "",
         carbs: aiData.carbs || "",
         fat: aiData.fat || "",
-        image: dynamicImageUrl // ✨ Generated AI Image
+        image: recipeImageUrl // ✨ Real image from Unsplash
       }));
 
-      toast.success("✨ Magic Fill & Image Ready!");
+      toast.success("✨ Magic Fill & Photo Ready!");
     } catch (error) {
-      console.error("Gemini AI Error:", error);
-      toast.error("AI couldn't generate details. Please check your API key or network.");
+      console.error("Combined AI Error:", error);
+      toast.error("AI couldn't generate details. Try again.");
     } finally {
       setIsAILoading(false);
     }
@@ -173,7 +188,7 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
                 <div className="col-md-6">
                   <label className="form-label small fw-bold">Recipe Name</label>
                   <div className="d-flex gap-2">
-                    <input type="text" name="name" className="form-control rounded-3" placeholder="e.g. Mutton Biryani" required value={newRecipe.name} onChange={handleInputChange} />
+                    <input type="text" name="name" className="form-control rounded-3" placeholder="e.g. Pizza, Pasta, Biryani" required value={newRecipe.name} onChange={handleInputChange} />
                     <button 
                       type="button" 
                       className="btn btn-warning btn-sm rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center px-3" 
@@ -216,13 +231,13 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
               </div>
 
               <div className="mb-3">
-                <label className="form-label small fw-bold">Ingredients (comma-separated)</label>
-                <input type="text" name="ingredients" className="form-control rounded-3" placeholder="e.g. Rice, Mutton, Spices" required value={newRecipe.ingredients} onChange={handleInputChange} />
+                <label className="form-label small fw-bold">Ingredients</label>
+                <input type="text" name="ingredients" className="form-control rounded-3" placeholder="e.g. Rice, Spices" required value={newRecipe.ingredients} onChange={handleInputChange} />
               </div>
 
               <div className="mb-3">
                 <label className="form-label small fw-bold">Instructions</label>
-                <textarea name="instructions" className="form-control rounded-3" rows="3" placeholder="Step 1: Marinate meat... Step 2: Cook rice..." required value={newRecipe.instructions} onChange={handleInputChange}></textarea>
+                <textarea name="instructions" className="form-control rounded-3" rows="3" placeholder="Step 1... Step 2..." required value={newRecipe.instructions} onChange={handleInputChange}></textarea>
               </div>
 
               <h5 className="fw-bold text-dark mt-4 mb-3 border-bottom pb-2">Nutritional Information</h5>
@@ -245,10 +260,9 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
                 </div>
               </div>
 
-              {/* 🖼️ NEW: Image Preview Section */}
               <div className="mb-4 p-3 rounded-3 border bg-light text-center">
                 <label className="form-label d-block small fw-bold text-dark mb-3">
-                  Recipe Image Preview
+                  Recipe Image Preview (Powered by Unsplash)
                 </label>
                 
                 {newRecipe.image ? (
@@ -256,29 +270,19 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
                     src={newRecipe.image} 
                     alt="Food Preview" 
                     className="rounded-3 shadow-sm img-thumbnail"
-                    style={{ maxHeight: '250px', width: '100%', objectFit: 'cover', transition: '0.3s ease-in-out' }}
-                    onError={() => setNewRecipe(prev => ({ ...prev, image: "" }))}
+                    style={{ maxHeight: '250px', width: '100%', objectFit: 'cover' }}
                   />
                 ) : isAILoading ? (
                   <div className="py-5 text-muted">
                     <div className="spinner-border text-warning mb-2" role="status"></div>
-                    <div className="small fw-semibold">Generating beautiful image...</div>
+                    <div className="small fw-semibold">Searching Unsplash...</div>
                   </div>
                 ) : (
                   <div className="py-5 text-muted bg-white rounded-3 border border-dashed">
                     <span className="display-4 opacity-25">🖼️</span>
-                    <div className="small mt-2 fw-semibold">Image will appear here after AI Fill</div>
+                    <div className="small mt-2 fw-semibold">Photo will appear here</div>
                   </div>
                 )}
-                
-                <input 
-                  type="text" 
-                  name="image" 
-                  className="form-control form-control-sm mt-3 rounded-pill text-center opacity-50" 
-                  placeholder="Or paste custom image URL here" 
-                  value={newRecipe.image} 
-                  onChange={handleInputChange} 
-                />
               </div>
 
               <div className="text-end mt-4">

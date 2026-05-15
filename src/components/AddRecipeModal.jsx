@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 
 function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
-  // 💡 FIX 1: Everything is completely empty now! No old data.
+  // 💡 Form is completely empty by default
   const emptyFormState = {
     name: "",
     category: "Veg",
@@ -30,13 +30,12 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
       setNewRecipe({
         ...editRecipe,
         ingredients: editRecipe.ingredients ? editRecipe.ingredients.join(', ') : "",
-        calories: editRecipe.nutrition ? editRecipe.nutrition.calories : "",
-        protein: editRecipe.nutrition ? editRecipe.nutrition.protein : "",
-        carbs: editRecipe.nutrition ? editRecipe.nutrition.carbs : "",
-        fat: editRecipe.nutrition ? editRecipe.nutrition.fat : ""
+        calories: editRecipe.nutrition?.calories || "",
+        protein: editRecipe.nutrition?.protein || "",
+        carbs: editRecipe.nutrition?.carbs || "",
+        fat: editRecipe.nutrition?.fat || ""
       });
     } else {
-      // Reset to completely empty form when in Add Mode
       setNewRecipe(emptyFormState);
     }
   }, [editRecipe, show]);
@@ -46,7 +45,7 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
     setNewRecipe({ ...newRecipe, [name]: value });
   };
 
-  // 🪄 Gemini AI Magic Fill Logic
+  // 🪄 Gemini AI Magic Fill + Dynamic Real-time Image Logic
   const handleMagicFill = async () => {
     if (!newRecipe.name.trim()) {
       toast.warning("Please enter a Recipe Name first! (e.g., Mutton Biryani)");
@@ -54,6 +53,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
     }
 
     setIsAILoading(true);
+    // Clear the image immediately so the user sees the loading state
+    setNewRecipe(prev => ({ ...prev, image: "" })); 
 
     try {
       const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
@@ -64,9 +65,9 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         return; 
       }
 
-      toast.info("AI is cooking up the details... 🪄");
+      toast.info("AI is cooking up the details & image... 🪄");
       
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`;
 
       const promptText = `
         I am building a recipe sharing application. Provide realistic recipe details for a dish named "${newRecipe.name}".
@@ -88,24 +89,21 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
       const response = await fetch(url, {
         method: "POST",
-        headers: { 
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.statusText}`);
+        throw new Error(`Failed to fetch from Gemini API`);
       }
 
       const data = await response.json();
-      
       let text = data.candidates[0].content.parts[0].text;
       text = text.replace(/```json/g, "").replace(/```/g, "").trim();
       const aiData = JSON.parse(text);
 
-      // 💡 FIX 2: We use Pollinations AI, but if it breaks, the user can just clear the text box!
-      const dynamicImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(newRecipe.name + " delicious dish food photography")}?width=600&height=400&nologo=true`;
+      // 💡 DYNAMIC IMAGE based on typed food name
+      const dynamicImageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(newRecipe.name + " delicious dish food photography close up high resolution")}?width=600&height=400&nologo=true`;
 
       setNewRecipe(prev => ({
         ...prev,
@@ -120,10 +118,10 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         protein: aiData.protein || "",
         carbs: aiData.carbs || "",
         fat: aiData.fat || "",
-        image: dynamicImageUrl 
+        image: dynamicImageUrl // ✨ Generated AI Image
       }));
 
-      toast.success("✨ Magic Fill Ready!");
+      toast.success("✨ Magic Fill & Image Ready!");
     } catch (error) {
       console.error("Gemini AI Error:", error);
       toast.error("AI couldn't generate details. Please check your API key or network.");
@@ -169,11 +167,12 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
           </div>
           <div className="modal-body p-4">
             <form onSubmit={handleSubmit}>
+              
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label className="form-label small fw-bold">Recipe Name</label>
                   <div className="d-flex gap-2">
-                    <input type="text" name="name" className="form-control rounded-3" placeholder="e.g. Garlic Butter Shrimp" required value={newRecipe.name} onChange={handleInputChange} />
+                    <input type="text" name="name" className="form-control rounded-3" placeholder="e.g. Mutton Biryani" required value={newRecipe.name} onChange={handleInputChange} />
                     <button 
                       type="button" 
                       className="btn btn-warning btn-sm rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center px-3" 
@@ -217,12 +216,12 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
               <div className="mb-3">
                 <label className="form-label small fw-bold">Ingredients (comma-separated)</label>
-                <input type="text" name="ingredients" className="form-control rounded-3" placeholder="Shrimp, Garlic, Butter, Parsley" required value={newRecipe.ingredients} onChange={handleInputChange} />
+                <input type="text" name="ingredients" className="form-control rounded-3" placeholder="e.g. Rice, Mutton, Spices" required value={newRecipe.ingredients} onChange={handleInputChange} />
               </div>
 
               <div className="mb-3">
                 <label className="form-label small fw-bold">Instructions</label>
-                <textarea name="instructions" className="form-control rounded-3" rows="3" placeholder="Step 1: Melt butter... Step 2: Add garlic..." required value={newRecipe.instructions} onChange={handleInputChange}></textarea>
+                <textarea name="instructions" className="form-control rounded-3" rows="3" placeholder="Step 1: Marinate meat... Step 2: Cook rice..." required value={newRecipe.instructions} onChange={handleInputChange}></textarea>
               </div>
 
               <h5 className="fw-bold text-dark mt-4 mb-3 border-bottom pb-2">Nutritional Information</h5>
@@ -245,14 +244,45 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
                 </div>
               </div>
 
-              <div className="mb-4">
-                <label className="form-label small fw-bold">Image URL (Auto-filled by AI - Clear this box to use default category image)</label>
-                <input type="text" name="image" className="form-control rounded-3" placeholder="Leave empty for auto category image" value={newRecipe.image} onChange={handleInputChange} />
+              {/* 🖼️ NEW: Image Preview Section */}
+              <div className="mb-4 p-3 rounded-3 border bg-light text-center">
+                <label className="form-label d-block small fw-bold text-dark mb-3">
+                  Recipe Image Preview
+                </label>
+                
+                {newRecipe.image ? (
+                  <img 
+                    src={newRecipe.image} 
+                    alt="Food Preview" 
+                    className="rounded-3 shadow-sm img-thumbnail"
+                    style={{ maxHeight: '250px', width: '100%', objectFit: 'cover', transition: '0.3s ease-in-out' }}
+                    onError={() => setNewRecipe(prev => ({ ...prev, image: "" }))}
+                  />
+                ) : isAILoading ? (
+                  <div className="py-5 text-muted">
+                    <div className="spinner-border text-warning mb-2" role="status"></div>
+                    <div className="small fw-semibold">Generating beautiful image...</div>
+                  </div>
+                ) : (
+                  <div className="py-5 text-muted bg-white rounded-3 border border-dashed">
+                    <span className="display-4 opacity-25">🖼️</span>
+                    <div className="small mt-2 fw-semibold">Image will appear here after AI Fill</div>
+                  </div>
+                )}
+                
+                <input 
+                  type="text" 
+                  name="image" 
+                  className="form-control form-control-sm mt-3 rounded-pill text-center opacity-50" 
+                  placeholder="Or paste custom image URL here" 
+                  value={newRecipe.image} 
+                  onChange={handleInputChange} 
+                />
               </div>
 
               <div className="text-end mt-4">
                 <button type="button" className="btn btn-outline-secondary rounded-pill px-4 me-2" onClick={onClose}>Cancel</button>
-                <button type="submit" className="btn btn-primary rounded-pill px-4">
+                <button type="submit" className="btn btn-primary rounded-pill px-4 shadow-sm">
                   {editRecipe ? "Update Recipe" : "Add Recipe"}
                 </button>
               </div>

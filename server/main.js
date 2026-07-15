@@ -16,6 +16,16 @@ app.get('/', (req, res) => {
     res.send("RecipeShare Backend API is running perfectly! 🚀");
 });
 
+
+// 🔗 We are linking our Recipe Routes here!
+const recipeRoutes = require("./routes/recipe.routes");
+app.use("/api", recipeRoutes); // /api will appear before every URL
+
+app.get('/', (req, res) => {
+    res.send("RecipeShare Backend API is running perfectly! 🚀");
+});
+
+
 // Start Server
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {

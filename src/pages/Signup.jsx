@@ -8,6 +8,32 @@ function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
+    // ==========================================
+    // 🛡️ JAVASCRIPT FORM VALIDATION LOGIC
+    // ==========================================
+    
+    // 1. Name Validation (Must be at least 3 characters)
+    if (data.name.trim().length < 3) {
+      toast.warning("Name must be at least 3 characters long! ⚠️");
+      return; // Stop execution here
+    }
+
+    // 2. Email Validation (Must be a proper email format)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.email)) {
+      toast.warning("Please enter a valid email address! 📧");
+      return;
+    }
+
+    // 3. Password Validation (Must be at least 6 characters)
+    if (data.password.length < 6) {
+      toast.warning("Password must be at least 6 characters long! 🔒");
+      return;
+    }
+
+    // ==========================================
+
     try {
       const response = await fetch('http://localhost:3000/users', {
         method: 'POST',
@@ -40,7 +66,7 @@ function Signup() {
           </div>
           <div className="mb-3">
             <label className="form-label">Password</label>
-            <input type="password" className="form-control" placeholder="Min 6 characters" onChange={(e) => setData({ ...data, password: e.target.value })} required />
+            <input type="password" name="password" className="form-control" placeholder="Min 6 characters" autoComplete="new-password" onChange={(e) => setData({ ...data, password: e.target.value })} required />
           </div>
           <button type="submit" className="btn btn-success btn-lg w-100 shadow-sm mt-2">Register</button>
         </form>

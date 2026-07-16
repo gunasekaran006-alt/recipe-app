@@ -1,0 +1,212 @@
+[
+    {
+      "id": "1",
+      "name": "Chicken Biryani",
+      "category": "Non-Veg",
+      "image": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?q=80&w=500",
+      "ingredients": [
+        "Basmati Rice",
+        "Chicken",
+        "Spices",
+        "Yogurt"
+      ],
+      "instructions": "Marinate chicken, cook rice, layer them and steam.",
+      "time": "45 mins",
+      "servings": "4 Servings",
+      "rating": 5,
+      "reviews": 184,
+      "difficulty": "Hard",
+      "author": "Chef Kumar",
+      "description": "Rich and flavorful layered Indian rice dish served with marinated chicken and aromatic spices."
+    },
+    {
+      "id": "2",
+      "name": "Paneer Butter Masala",
+      "category": "Veg",
+      "image": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?q=80&w=500",
+      "ingredients": [
+        "Paneer",
+        "Tomato",
+        "Butter",
+        "Cream"
+      ],
+      "instructions": "Cook tomato gravy and add sautéed paneer with cream.",
+      "time": "30 mins",
+      "servings": "3 Servings",
+      "rating": 4,
+      "reviews": 95,
+      "difficulty": "Medium",
+      "author": "Chef Priya",
+      "description": "Succulent paneer cubes cooked in a rich, creamy, and mildly sweet tomato-based gravy."
+    },
+    {
+      "id": "3",
+      "name": "Margherita Pizza",
+      "category": "Italian",
+      "image": "https://images.unsplash.com/photo-1604068549290-dea0e4a305ca?q=80&w=500",
+      "ingredients": [
+        "Dough",
+        "Mozzarella",
+        "Basil",
+        "Tomato Sauce"
+      ],
+      "instructions": "Bake dough with sauce and cheese at 220°C.",
+      "time": "20 mins",
+      "servings": "2 Servings",
+      "rating": 5,
+      "reviews": 150,
+      "difficulty": "Easy",
+      "author": "Chef Rossi",
+      "description": "Simple yet classic Italian pizza topped with fresh tomato sauce, mozzarella cheese, and sweet basil."
+    },
+    {
+      "id": "4",
+      "name": "Masala Dosa",
+      "category": "South Indian",
+      "image": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?q=80&w=500",
+      "ingredients": [
+        "Rice Batter",
+        "Potato",
+        "Onion",
+        "Mustard Seeds"
+      ],
+      "instructions": "Spread batter, add potato filling, and fold.",
+      "time": "15 mins",
+      "servings": "2 Servings",
+      "rating": 4,
+      "reviews": 210,
+      "difficulty": "Medium",
+      "author": "Chef Guna",
+      "description": "Crispy thin rice crêpe filled with a delicious, spiced potato mash and served with chutneys."
+    },
+    {
+      "id": "5",
+      "name": "Mutton Rogan Josh",
+      "category": "Non-Veg",
+      "image": "https://images.unsplash.com/photo-1545247181-516773cae754?q=80&w=500",
+      "ingredients": [
+        "Mutton",
+        "Kashmiri Chillies",
+        "Yogurt",
+        "Ginger"
+      ],
+      "instructions": "Slow cook mutton with spices until tender.",
+      "time": "60 mins",
+      "servings": "5 Servings",
+      "rating": 5,
+      "reviews": 78,
+      "difficulty": "Hard",
+      "author": "Chef Khan",
+      "description": "Aromatic Kashmiri mutton dish slow-cooked with a rich gravy of yogurt and traditional spices."
+    },
+    {
+      "id": "6",
+      "name": "Vegetable Pasta",
+      "category": "Italian",
+      "image": "https://images.unsplash.com/photo-1473093226795-af9932fe5856?q=80&w=500",
+      "ingredients": [
+        "Pasta",
+        "Broccoli",
+        "Bell Peppers",
+        "Olive Oil"
+      ],
+      "instructions": "Boil pasta and toss with sautéed vegetables.",
+      "time": "25 mins",
+      "servings": "3 Servings",
+      "rating": 4,
+      "reviews": 64,
+      "difficulty": "Easy",
+      "author": "Chef Smith",
+      "description": "Healthy and vibrant pasta tossed with colorful sautéed seasonal vegetables and olive oil."
+    },
+    {
+      "id": "7",
+      "name": "Fish Curry",
+      "category": "Non-Veg",
+      "image": "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?q=80&w=500",
+      "ingredients": [
+        "Fish",
+        "Coconut Milk",
+        "Tamarind",
+        "Chilly Powder"
+      ],
+      "instructions": "Simmer fish in spicy tamarind and coconut gravy.aaa",
+      "time": "35 mins",
+      "servings": "4 Servings",
+      "rating": 5,
+      "reviews": 112,
+      "difficulty": "Medium",
+      "author": "Chef Nair",
+      "description": "Coastal-style fish cooked in a tangy tamarind base and enriched with smooth coconut milk.",
+      "calories": "280 kcal",
+      "protein": "12g",
+      "carbs": "35g",
+      "fat": "8g",
+      "nutrition": {
+        "calories": "280 kcal",
+        "protein": "12g",
+        "carbs": "35g",
+        "fat": "8g"
+      }
+    },
+    {
+      "id": "8",
+      "name": "Gobi Manchurian",
+      "category": "Chinese",
+      "image": "https://images.unsplash.com/photo-1625943555419-56a2cb596640?q=80&w=500&auto=format&fit=crop",
+      "ingredients": [
+        "Cauliflower",
+        "Soy Sauce",
+        "Ginger",
+        "Garlic"
+      ],
+      "instructions": "Fry cauliflower florets and toss in spicy sauce.",
+      "time": "30 mins",
+      "servings": "3 Servings",
+      "rating": 4,
+      "reviews": 140,
+      "difficulty": "Medium",
+      "author": "Chef Lee",
+      "description": "Crispy deep-fried cauliflower florets tossed in a sweet, tangy, and hot Indo-Chinese sauce."
+    },
+    {
+      "id": "9",
+      "name": "Gulab Jamun",
+      "category": "Dessert",
+      "image": "https://images.unsplash.com/photo-1589119908995-c6837fa14848?q=80&w=500",
+      "ingredients": [
+        "Milk Powder",
+        "Sugar",
+        "Cardamom",
+        "Ghee"
+      ],
+      "instructions": "Fry milk balls and soak in sugar syrup.",
+      "time": "25 mins",
+      "servings": "6 Servings",
+      "rating": 5,
+      "reviews": 320,
+      "difficulty": "Easy",
+      "author": "Chef Sharma",
+      "description": "Soft and delicious berry-sized milk balls fried in ghee and soaked in sweet rose-scented cardamom syrup."
+    },
+    {
+      "id": "10",
+      "name": "Classic Burger",
+      "category": "Fast Food",
+      "image": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=500",
+      "ingredients": [
+        "Bun",
+        "Patty",
+        "Cheese",
+        "Lettuce"
+      ],
+      "instructions": "Grill patty, layer with cheese and veggies in a bun.",
+      "time": "20 mins",
+      "servings": "1 Serving",
+      "rating": 4,
+      "reviews": 175,
+      "difficulty": "Easy",
+      "author": "Chef Burger",
+      "description": "Juicy grilled patty layered with melted cheese, fresh lettuce, and savory sauces inside a toasted bun."
+    }
+  ]

@@ -7,14 +7,14 @@ import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Home from './pages/Home';
 import Favorites from './pages/Favorites';
-import Profile from './pages/Profile'; 
-import Settings from './pages/Settings'; 
+import Profile from './pages/Profile';
+import Settings from './pages/Settings';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
-import AddRecipeModal from './components/AddRecipeModal'; 
+import AddRecipeModal from './components/AddRecipeModal';
 
 // Make sure updateRecipe is imported here
-import { getRecipes, createRecipe, updateRecipe } from './services/api'; 
+import { getRecipes, createRecipe, updateRecipe } from './services/api';
 
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -42,49 +42,68 @@ function App() {
   }, []);
 
   const handleSaveRecipe = async (recipeData) => {
-    if (isSaving) return; 
+    if (isSaving) return;
     setIsSaving(true);
-    setShowAddModal(false); 
+    // setShowAddModal(false); // 🆕 The modal should be closed only after success; therefore, we are avoiding it here.
 
     try {
-      const { id, ...cleanData } = recipeData;
+      // const { id, ...cleanData } = recipeData;
+      // 1. We extract the old id that is no longer needed and take only the remaining data (cleanData).
+      const { id, _id, ...cleanData } = recipeData;
 
-      // Generate our own custom ID to ensure it stays at the top of the object
-      const customId = "rec_" + Math.random().toString(36).substr(2, 9);
 
-      // Place 'id' as the FIRST property in the final object
-      const finalRecipe = { 
-        id: editRecipe ? editRecipe.id : customId, 
-        ...cleanData 
+
+      // // Generate our own custom ID to ensure it stays at the top of the object
+      // const customId = "rec_" + Math.random().toString(36).substr(2, 9);
+
+      // // Place 'id' as the FIRST property in the final object
+      // const finalRecipe = {
+      //   id: editRecipe ? editRecipe.id : customId,
+      //   ...cleanData
+      // };
+
+      // 2. Get the name of the logged in user from the Session (Author Fix) 
+      const storedUser = JSON.parse(sessionStorage.getItem('user'));
+      const authorName = storedUser ? storedUser.name : "Unknown Chef";
+
+      // 3. The complete Data Object to send to the backend 
+      const finalRecipe = {
+        ...cleanData,
+        author: authorName, // 🆕 Login name! 
       };
 
-      // Smart Category Image Logic
+
+      // 4 .Smart Category Image Logic
       if (!finalRecipe.image || finalRecipe.image.includes("random") || finalRecipe.image === "") {
         const category = (finalRecipe.category || "").toLowerCase();
         if (category.includes("veg") && !category.includes("non")) {
-          finalRecipe.image = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop"; 
+          finalRecipe.image = "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=600&auto=format&fit=crop";
         } else if (category.includes("non")) {
-          finalRecipe.image = "https://images.unsplash.com/photo-1606728035253-49e190477c8e?q=80&w=600&auto=format&fit=crop"; 
+          finalRecipe.image = "https://images.unsplash.com/photo-1606728035253-49e190477c8e?q=80&w=600&auto=format&fit=crop";
         } else if (category.includes("dessert") || category.includes("sweet")) {
-          finalRecipe.image = "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=600&auto=format&fit=crop"; 
+          finalRecipe.image = "https://images.unsplash.com/photo-1578985545062-69928b1d9587?q=80&w=600&auto=format&fit=crop";
         } else {
-          finalRecipe.image = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600&auto=format&fit=crop"; 
+          finalRecipe.image = "https://images.unsplash.com/photo-1498837167922-ddd27525d352?q=80&w=600&auto=format&fit=crop";
         }
       }
 
       if (editRecipe) {
-        // UPDATE LOGIC
-        await updateRecipe(editRecipe.id, finalRecipe);
+        // UPDATE LOGIC (we use editRecipe._id instead of id)        await updateRecipe(editRecipe.id, finalRecipe);
+        await updateRecipe(editRecipe._id, finalRecipe);
         toast.success("Recipe Updated Successfully! ✏️");
       } else {
-        // CREATE LOGIC
+        // CREATE LOGIC (Since it is a new recipe, _id is not required; MongoDB will generate it automatically)        await createRecipe(finalRecipe);
         await createRecipe(finalRecipe);
         toast.success("Recipe added perfectly! ✨");
       }
 
+// 🆕 The modal should be closed only after success.
+      setShowAddModal(false);
+
       setTimeout(() => {
-          window.location.reload(); 
-      }, 1500);
+        window.location.reload();
+      // }, 1500);
+      }, 1000);
 
     } catch (error) {
       toast.error("Failed to save recipe! Please try again.");
@@ -98,15 +117,15 @@ function App() {
   return (
     <BrowserRouter>
       {/* Global Toast Container */}
-      <ToastContainer 
-        position="top-right" 
-        autoClose={1500} 
-        hideProgressBar={false} 
-        newestOnTop={true} 
-        closeOnClick 
-        theme="colored" 
+      <ToastContainer
+        position="top-right"
+        autoClose={1500}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        theme="colored"
       />
-      
+
       <div className="d-flex flex-column min-vh-100">
         <div className="flex-grow-1">
           <Routes>
@@ -123,10 +142,10 @@ function App() {
         <Footer />
       </div>
 
-      <AddRecipeModal 
-        show={showAddModal} 
-        onClose={() => { setShowAddModal(false); setEditRecipe(null); }} 
-        onAddRecipe={handleSaveRecipe} 
+      <AddRecipeModal
+        show={showAddModal}
+        onClose={() => { setShowAddModal(false); setEditRecipe(null); }}
+        onAddRecipe={handleSaveRecipe}
         editRecipe={editRecipe}
       />
     </BrowserRouter>

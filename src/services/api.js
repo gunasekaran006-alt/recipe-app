@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3000/recipes';
+// const API_URL = 'http://localhost:3000/recipes';
+const API_URL = 'http://localhost:8080/api/recipes';
+
 
 // Fetch all recipes
 export const getRecipes = async () => {

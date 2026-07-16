@@ -12,7 +12,7 @@ function Login() {
     // ==========================================
     // 🛡️ JAVASCRIPT FORM VALIDATION LOGIC
     // ==========================================
-    
+
     // 1. Email Format Validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(login.email)) {
@@ -28,24 +28,49 @@ function Login() {
 
     // ==========================================
 
+    //   try {
+    //     const res = await fetch('http://localhost:3000/users');
+    //     const users = await res.json();
+
+    //     const user = users.find(u => u.email === login.email && u.password === login.password);
+
+    //     if (user) {
+    //       toast.success(`Welcome back, ${user.name || 'Chef'}! 👩‍🍳`); 
+    //       sessionStorage.setItem("isLoggedIn", "true");
+    //       sessionStorage.setItem("user", JSON.stringify(user));
+    //       navigate('/home');
+    //     } else {
+    //       toast.error("Invalid email or password! ❌");
+    //     }
+    //   } catch (error) {
+    //     toast.error("Server error. Please ensure json-server is running.");
+    //   }
+    // };
+
+
     try {
-      const res = await fetch('http://localhost:3000/users');
-      const users = await res.json();
-      
-      const user = users.find(u => u.email === login.email && u.password === login.password);
-      
-      if (user) {
-        toast.success(`Welcome back, ${user.name || 'Chef'}! 👩‍🍳`); 
+      // 🆕 Our new Node.js backend API link!
+      const response = await fetch('http://localhost:8080/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: login.email, password: login.password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        toast.success(`Welcome back, ${data.user.name || 'Chef'}! 👩‍🍳`);
         sessionStorage.setItem("isLoggedIn", "true");
-        sessionStorage.setItem("user", JSON.stringify(user));
+        sessionStorage.setItem("user", JSON.stringify(data.user));
         navigate('/home');
       } else {
-        toast.error("Invalid email or password! ❌");
+        toast.error(data.message || "Invalid email or password! ❌");
       }
     } catch (error) {
-      toast.error("Server error. Please ensure json-server is running.");
+      toast.error("Server error. Please ensure Node.js backend is running.");
     }
   };
+
 
   return (
     <div className="container d-flex justify-content-center align-items-center vh-100">
@@ -54,11 +79,13 @@ function Login() {
         <form onSubmit={handleLogin}>
           <div className="mb-3">
             <label className="form-label">Email Address</label>
-            <input type="email" className="form-control form-control-lg" placeholder="example@mail.com" onChange={(e) => setLogin({...login, email: e.target.value})} required />
+            {/* <input type="email" className="form-control form-control-lg" placeholder="example@mail.com" onChange={(e) => setLogin({...login, email: e.target.value})} required /> */}
+            {/* 🆕 autoComplete="username" added */}
+            <input type="email" className="form-control form-control-lg" placeholder="example@mail.com" autoComplete="username" onChange={(e) => setLogin({ ...login, email: e.target.value })} required />
           </div>
           <div className="mb-3">
             <label className="form-label">Password</label>
-            <input type="password" name="password" className="form-control form-control-lg" placeholder="••••••••" autoComplete="current-password" onChange={(e) => setLogin({...login, password: e.target.value})} required />
+            <input type="password" name="password" className="form-control form-control-lg" placeholder="••••••••" autoComplete="current-password" onChange={(e) => setLogin({ ...login, password: e.target.value })} required />
           </div>
           <button type="submit" className="btn btn-primary btn-lg w-100 shadow-sm mt-2">Login Now</button>
         </form>

@@ -10,7 +10,7 @@ function Home() {
     const [recipes, setRecipes] = useState([]);
     const [search, setSearch] = useState("");
     const [selectedRecipe, setSelectedRecipe] = useState(null);
-    
+
     // States for Custom Delete Confirmation Modal
     const [recipeToDelete, setRecipeToDelete] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -38,10 +38,48 @@ function Home() {
         });
     }, []);
 
-    const filteredRecipes = recipes.filter(r =>
-        r.name.toLowerCase().includes(search.toLowerCase()) ||
-        r.category.toLowerCase().includes(search.toLowerCase())
-    );
+
+
+    // STAGE:1
+    // const filteredRecipes = recipes.filter(r =>
+    //     r.name.toLowerCase().includes(search.toLowerCase()) ||
+    //     r.category.toLowerCase().includes(search.toLowerCase())
+    // );
+
+    //STAGE :2
+    const filteredRecipes = recipes.filter(recipe => {
+        // stage:1
+        // toLowerCase() will work only after checking if recipe.name exists.
+        // recipe?.name?.toLowerCase().includes(searchQuery?.toLowerCase() || "")
+        // recipe?.name?.toLowerCase().includes(search?.toLowerCase() || "")
+
+        // stag:2
+        // const matchName = recipe?.name?.toLowerCase().includes(search?.toLowerCase() || "");
+        // const matchCategory = recipe?.category?.toLowerCase().includes(search?.toLowerCase() || "");
+
+        // stage:3
+        const recipeName = recipe?.name?.toLowerCase() || "";
+        const recipeCategory = recipe?.category?.toLowerCase() || "";
+        const currentSearch = search?.toLowerCase() || "";
+
+        // The exact category list available in our app
+        const appCategories = ["veg", "non-veg", "italian", "south indian", "chinese", "dessert", "fast food"];
+
+        // 1. If the 'Exact Match' button has been clicked (Exact Match check)
+        if (appCategories.includes(currentSearch)) {
+            return recipeCategory === currentSearch; // Veg-na Veg mattum thaan varum, Non-veg varaathu!
+        }
+
+        // 2. If you have typed in the search bar (normal substring search)
+        return recipeName.includes(currentSearch) || recipeCategory.includes(currentSearch);
+
+
+
+
+        // return matchName || matchCategory; // It will show up if it is in either of the two!
+    });
+
+
 
     // 1. Triggered when Delete is clicked in the Detail Modal
     const handleDeleteRecipe = (recipeId) => {
@@ -54,12 +92,13 @@ function Home() {
         if (recipeToDelete) {
             try {
                 await deleteRecipe(recipeToDelete);
-                
+
                 // Update UI State
-                const updatedRecipes = recipes.filter(recipe => recipe.id !== String(recipeToDelete) && recipe.id !== Number(recipeToDelete));
+                // const updatedRecipes = recipes.filter(recipe => recipe.id !== String(recipeToDelete) && recipe.id !== Number(recipeToDelete));
+                const updatedRecipes = recipes.filter(recipe => recipe._id !== String(recipeToDelete) && recipe._id !== Number(recipeToDelete));
                 setRecipes(updatedRecipes);
-                setSelectedRecipe(null); 
-                
+                setSelectedRecipe(null);
+
                 toast.success("Recipe deleted successfully! 🗑️");
             } catch (error) {
                 toast.error("Failed to delete recipe. Please try again.");
@@ -92,7 +131,7 @@ function Home() {
                 <HeroSection search={search} setSearch={setSearch} />
 
                 <div className="container py-4">
-                    
+
                     {isSearching ? (
                         <div className="mb-5">
                             <div className="d-flex justify-content-between align-items-center border-start border-primary border-4 ps-3 mb-4">
@@ -112,10 +151,11 @@ function Home() {
                                 <div className="row">
                                     {filteredRecipes.map(recipe => (
                                         <RecipeCard
-                                            key={recipe.id}
+                                            // key={recipe.id}
+                                            key={recipe._id}
                                             recipe={recipe}
                                             setSelectedRecipe={setSelectedRecipe}
-                                            isFavorite={favorites.includes(String(recipe.id))}
+                                            isFavorite={favorites.includes(String(recipe._id))}
                                             onFavoriteToggle={toggleFavorite}
                                         />
                                     ))}
@@ -132,10 +172,10 @@ function Home() {
                                     <div className="row">
                                         {recipes.slice(0, 3).map(recipe => (
                                             <RecipeCard
-                                                key={recipe.id}
+                                                key={recipe._id}
                                                 recipe={recipe}
                                                 setSelectedRecipe={setSelectedRecipe}
-                                                isFavorite={favorites.includes(String(recipe.id))}
+                                                isFavorite={favorites.includes(String(recipe._id))}
                                                 onFavoriteToggle={toggleFavorite}
                                             />
                                         ))}
@@ -151,10 +191,10 @@ function Home() {
                                     <div className="row">
                                         {trendingRecipes.map(recipe => (
                                             <RecipeCard
-                                                key={recipe.id}
+                                                key={recipe._id}
                                                 recipe={recipe}
                                                 setSelectedRecipe={setSelectedRecipe}
-                                                isFavorite={favorites.includes(String(recipe.id))}
+                                                isFavorite={favorites.includes(String(recipe._id))}
                                                 onFavoriteToggle={toggleFavorite}
                                             />
                                         ))}
@@ -173,10 +213,10 @@ function Home() {
                                     <div className="row">
                                         {recipes.map(recipe => (
                                             <RecipeCard
-                                                key={recipe.id}
+                                                key={recipe._id}
                                                 recipe={recipe}
                                                 setSelectedRecipe={setSelectedRecipe}
-                                                isFavorite={favorites.includes(String(recipe.id))}
+                                                isFavorite={favorites.includes(String(recipe._id))}
                                                 onFavoriteToggle={toggleFavorite}
                                             />
                                         ))}
@@ -189,8 +229,8 @@ function Home() {
                     <div className="p-5 bg-primary text-white text-center rounded-4 shadow-lg my-5">
                         <h2 className="fw-bold mb-3">Ready to Share Your Own Recipe?</h2>
                         <p className="mb-4 opacity-75">Upload your dishes and inspire food lovers across the world.</p>
-                        <button 
-                            className="btn btn-light rounded-pill px-5 fw-bold text-primary" 
+                        <button
+                            className="btn btn-light rounded-pill px-5 fw-bold text-primary"
                             onClick={() => {
                                 const event = new CustomEvent("openAddRecipeModal");
                                 window.dispatchEvent(event);
@@ -203,7 +243,7 @@ function Home() {
             </div>
 
             {/* Recipe Detail Modal */}
-            <RecipeDetailModal 
+            <RecipeDetailModal
                 selectedRecipe={selectedRecipe}
                 onClose={() => setSelectedRecipe(null)}
                 onEdit={handleEditRecipe}

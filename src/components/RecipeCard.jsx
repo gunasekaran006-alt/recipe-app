@@ -34,7 +34,8 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle })
               style={{ width: '35px', height: '35px', border: 'none' }}
               onClick={(e) => {
                 e.stopPropagation(); // Prevents opening the modal when clicking the heart icon
-                onFavoriteToggle(recipe.id);
+                // onFavoriteToggle(recipe.id);
+                onFavoriteToggle(recipe._id);
               }}
             >
               {isFavorite ? '❤️' : '🤍'}

@@ -5,7 +5,7 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
   const emptyFormState = {
     name: "",
     category: "Veg",
-    image: "", 
+    image: "",
     ingredients: "",
     instructions: "",
     time: "",
@@ -52,20 +52,20 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
     }
 
     setIsAILoading(true);
-    setNewRecipe(prev => ({ ...prev, image: "" })); 
+    setNewRecipe(prev => ({ ...prev, image: "" }));
 
     try {
-      const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
-      const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY; 
+      const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+      const UNSPLASH_ACCESS_KEY = import.meta.env.VITE_UNSPLASH_ACCESS_KEY;
 
       if (!GEMINI_API_KEY || !UNSPLASH_ACCESS_KEY) {
         toast.error("⚠️ Missing API Keys! Please check your .env file.");
         setIsAILoading(false);
-        return; 
+        return;
       }
 
       toast.info("AI is cooking details & finding the best photo... 🪄📸");
-      
+
       // 1. Get Text from Gemini
       const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
       const promptText = `
@@ -100,14 +100,14 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
       // 2. Smart Unsplash Search
       let recipeImageUrl = "";
-      
+
       // Attempt 1: Search exact food name
       let unsplashUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(newRecipe.name)}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1`;
       let unsplashResponse = await fetch(unsplashUrl);
       let unsplashData = await unsplashResponse.json();
 
       if (unsplashData.results && unsplashData.results.length > 0) {
-        recipeImageUrl = unsplashData.results[0].urls.regular; 
+        recipeImageUrl = unsplashData.results[0].urls.regular;
       } else {
         // Attempt 2 (Fallback): If exact food is not found, search by Category
         console.log(`Unsplash didn't have ${newRecipe.name}, searching for ${aiData.category} food instead...`);
@@ -115,7 +115,7 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         let fallbackUrl = `https://api.unsplash.com/search/photos?query=${encodeURIComponent(fallbackQuery)}&client_id=${UNSPLASH_ACCESS_KEY}&per_page=1`;
         let fallbackResponse = await fetch(fallbackUrl);
         let fallbackData = await fallbackResponse.json();
-        
+
         if (fallbackData.results && fallbackData.results.length > 0) {
           recipeImageUrl = fallbackData.results[0].urls.regular;
         }
@@ -149,15 +149,23 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    // 1. Converting ingredients into an array
     const ingredientsArray = newRecipe.ingredients
       .split(',')
       .map(ing => ing.trim())
       .filter(ing => ing !== "");
 
+    // 2. Retrieving the logged-in username from SessionStorage (Author Fix)
+    const storedUser = JSON.parse(sessionStorage.getItem('user'));
+    const authorName = storedUser ? storedUser.name : "Unknown Chef";
+
+    // 3. Complete data object to be sent to the backend
     const recipeToAdd = {
       ...newRecipe,
-      id: editRecipe ? editRecipe.id : String(Date.now()), 
+      // We send the old _id when editing. Nothing new is required when adding (MongoDB handles it).
+      id: editRecipe ? editRecipe._id : undefined,
       ingredients: ingredientsArray,
+      author: authorName, // 🆕 Name of the logged-in user!
       nutrition: {
         calories: newRecipe.calories || "N/A",
         protein: newRecipe.protein || "N/A",
@@ -165,8 +173,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         fat: newRecipe.fat || "N/A"
       }
     };
-
-    onAddRecipe(recipeToAdd); 
+    // Sending to the API logic in Home.jsx
+    onAddRecipe(recipeToAdd);
   };
 
   if (!show) return null;
@@ -183,16 +191,16 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
           </div>
           <div className="modal-body p-4">
             <form onSubmit={handleSubmit}>
-              
+
               <div className="row mb-3">
                 <div className="col-md-6">
                   <label className="form-label small fw-bold">Recipe Name</label>
                   <div className="d-flex gap-2">
                     <input type="text" name="name" className="form-control rounded-3" placeholder="e.g. Pizza, Pasta, Biryani" required value={newRecipe.name} onChange={handleInputChange} />
-                    <button 
-                      type="button" 
-                      className="btn btn-warning btn-sm rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center px-3" 
-                      onClick={handleMagicFill} 
+                    <button
+                      type="button"
+                      className="btn btn-warning btn-sm rounded-3 fw-bold shadow-sm d-flex align-items-center justify-content-center px-3"
+                      onClick={handleMagicFill}
                       disabled={isAILoading}
                       style={{ minWidth: '100px' }}
                     >
@@ -264,11 +272,11 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
                 <label className="form-label d-block small fw-bold text-dark mb-3">
                   Recipe Image Preview (Powered by Unsplash)
                 </label>
-                
+
                 {newRecipe.image ? (
-                  <img 
-                    src={newRecipe.image} 
-                    alt="Food Preview" 
+                  <img
+                    src={newRecipe.image}
+                    alt="Food Preview"
                     className="rounded-3 shadow-sm img-thumbnail"
                     style={{ maxHeight: '250px', width: '100%', objectFit: 'cover' }}
                   />

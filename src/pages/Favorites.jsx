@@ -17,7 +17,8 @@ function Favorites() {
   }, []);
 
   // Filter only the recipes that are in the favorites list
-  const favoriteRecipes = recipes.filter(r => favorites.includes(String(r.id)));
+  // const favoriteRecipes = recipes.filter(r => favorites.includes(String(r.id)));
+  const favoriteRecipes = recipes.filter(recipe => favorites.includes(String(recipe._id)));
 
   // Toggle favorite: Removes the recipe from the list immediately in Favorites Page
   const toggleFavorite = (recipeId) => {
@@ -45,13 +46,13 @@ function Favorites() {
   return (
     <div className="bg-light min-vh-100 d-flex flex-column">
       <Navbar />
-      
+
       <div className="container py-5 flex-grow-1">
         {/* Section Title */}
         <h2 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">
           ❤️ My Favorite Recipes
         </h2>
-        
+
         {favoriteRecipes.length === 0 ? (
           <div className="text-center py-5 bg-white rounded-4 shadow-sm my-4">
             <span className="fs-1">🍽️</span>
@@ -61,9 +62,9 @@ function Favorites() {
         ) : (
           <div className="row g-4">
             {favoriteRecipes.map(recipe => (
-              <RecipeCard 
-                key={recipe.id} 
-                recipe={recipe} 
+              <RecipeCard
+                key={recipe._id}
+                recipe={recipe}
                 setSelectedRecipe={setSelectedRecipe}
                 isFavorite={true} // It is always true in Favorites page
                 onFavoriteToggle={toggleFavorite}
@@ -74,7 +75,7 @@ function Favorites() {
       </div>
 
       {/* Reusable Detail Modal */}
-      <RecipeDetailModal 
+      <RecipeDetailModal
         selectedRecipe={selectedRecipe}
         onClose={() => setSelectedRecipe(null)}
         onEdit={handleEditRecipe}

@@ -136,7 +136,7 @@ function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
                     </button>
                     <button 
                       className="btn btn-danger flex-grow-1 rounded-pill fw-bold py-2 btn-sm"
-                      onClick={() => onDelete(selectedRecipe.id)}
+                      onClick={() => onDelete(selectedRecipe._id)}
                     >
                       🗑️ Delete Recipe
                     </button>

@@ -4,6 +4,11 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
+// 🆕 Bringing in the database connection
+const dbConnection = require("./config/dbconnection");
+dbConnection(); // Connecting!
+
+
 // Initialize Express App
 const app = express();
 

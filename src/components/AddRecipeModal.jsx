@@ -92,7 +92,12 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         body: JSON.stringify({ contents: [{ parts: [{ text: promptText }] }] })
       });
 
-      if (!geminiResponse.ok) throw new Error("Gemini API call failed");
+      // if (!geminiResponse.ok) throw new Error("Gemini API call failed");
+      if (!geminiResponse.ok) {
+        const errorData = await geminiResponse.json();
+        throw new Error(`Gemini API Error: ${errorData.error?.message || 'Unknown'}`);
+      }
+
       const geminiData = await geminiResponse.json();
       let geminiText = geminiData.candidates[0].content.parts[0].text;
       geminiText = geminiText.replace(/```json/g, "").replace(/```/g, "").trim();

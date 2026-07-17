@@ -116,6 +116,14 @@
 // STAGE:3
 const Recipe = require("../models/recipe.model");
 
+// 🆕 Title Case Helper Function (Magic that capitalizes the first letter of every word!)
+const toTitleCase = (str) => {
+    if (!str) return "";
+    return str.toLowerCase().split(' ').map(word => {
+        return word.charAt(0).toUpperCase() + word.slice(1);
+    }).join(' ');
+};
+
 // 1. GET API - Read all recipes from MongoDB
 exports.getRecipes = async (req, res) => {
     try {
@@ -135,7 +143,10 @@ exports.getRecipes = async (req, res) => {
 exports.createRecipe = async (req, res) => {
     try {
         // 🆕 We are also extracting the new fields from req.body
-        const { name, category, image, ingredients, instructions, time, servings, description, difficulty, author, rating, reviews, nutrition } = req.body;
+        let { name, category, image, ingredients, instructions, time, servings, description, difficulty, author, rating, reviews, nutrition } = req.body;
+
+        // 🆕 Regardless of how the user types it, we convert it to Title Case
+        name = toTitleCase(name);
 
         // Mongoose Command: db.recipes.insertOne()
         const newRecipe = new Recipe({
@@ -166,6 +177,11 @@ exports.updateRecipe = async (req, res) => {
     try {
         const id = req.params.id;
 
+        // 🆕 We also convert the name to Title Case during updates
+        if (req.body.name) {
+            req.body.name = toTitleCase(req.body.name);
+        }
+
         // Mongoose Command: db.recipes.updateOne()
         // Providing `{ new: true }` returns the updated data.
         const updatedRecipe = await Recipe.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }); // new: true Returns the newly updated data.
@@ -195,5 +211,30 @@ exports.deleteRecipe = async (req, res) => {
         res.status(200).json({ message: "Recipe Deleted Successfully! 🗑️" });
     } catch (error) {
         res.status(500).json({ message: "Error deleting recipe", error: error.message });
+    }
+};
+
+
+// 5. GET API - Get Recipe Statistics using Aggregation
+exports.getRecipeStats = async (req, res) => {
+    try {
+        const stats = await Recipe.aggregate([
+            {
+                // 1. Grouping recipes by Category and counting them
+                $group: {
+                    _id: "$category",
+                    totalRecipes: { $sum: 1 },
+                    averageRating: { $avg: "$rating" } // Bonus: Average rating of that category
+                }
+            },
+            {
+                // 2. Sorting the output (highest recipes first)
+                $sort: { totalRecipes: -1 }
+            }
+        ]);
+
+        res.status(200).json({ message: "Recipe Stats Fetched! 📊", data: stats });
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching stats", error: error.message });
     }
 };

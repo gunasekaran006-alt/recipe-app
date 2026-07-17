@@ -8,10 +8,14 @@
 const mongoose = require("mongoose");
 
 const recipeSchema = new mongoose.Schema({
-    name: { type: String, required: true },
+    // name: { type: String, required: true },
+
+    // 🆕 `index: true` has been added to speed up the search.
+    name: { type: String, required: true, index: true },
     category: {
         type: String,
         required: true,
+        index: true, // 🆕 Indexing to speed up category filtering
         // Validation Rule!
         enum: ["Veg", "Non-Veg", "Italian", "South Indian", "Chinese", "Dessert", "Fast Food"]
     },
@@ -25,7 +29,7 @@ const recipeSchema = new mongoose.Schema({
     difficulty: { type: String },
     author: { type: String },
     description: { type: String },
-    
+
     // (Nutrition Facts)
     nutrition: {
         calories: { type: String },

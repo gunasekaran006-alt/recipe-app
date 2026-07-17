@@ -2,6 +2,10 @@ const express = require("express");
 const router = express.Router();
 const recipeController = require("../controllers/recipe.controller");
 
+// 🆕 Aggregation API Route (Important: This must be placed above /:id)
+router.get("/recipes/stats", recipeController.getRecipeStats);
+
+
 // http://localhost:8080/api/recipes
 router.get("/recipes", recipeController.getRecipes);
 router.post("/recipes", recipeController.createRecipe);

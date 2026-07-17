@@ -14,7 +14,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import AddRecipeModal from './components/AddRecipeModal';
 
 // Make sure updateRecipe is imported here
-import { getRecipes, createRecipe, updateRecipe } from './services/api';
+// import { getRecipes, createRecipe, updateRecipe } from './services/api';
+import { getRecipes, createRecipe as addRecipeApi, updateRecipe as updateRecipeApi } from './services/api';
 
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -49,7 +50,7 @@ function App() {
     try {
       // const { id, ...cleanData } = recipeData;
       // 1. We extract the old id that is no longer needed and take only the remaining data (cleanData).
-      const { id, _id, ...cleanData } = recipeData;
+      let { id, _id, ...cleanData } = recipeData;
 
 
 
@@ -64,16 +65,17 @@ function App() {
 
       // 2. Get the name of the logged in user from the Session (Author Fix) 
       const storedUser = JSON.parse(sessionStorage.getItem('user'));
-      const authorName = storedUser ? storedUser.name : "Unknown Chef";
+      // const authorName = storedUser ? storedUser.name : "Unknown Chef";
 
       // 3. The complete Data Object to send to the backend 
-      const finalRecipe = {
+      let finalRecipe = {
         ...cleanData,
-        author: authorName, // 🆕 Login name! 
+        // author: authorName, // 🆕 Login name! 
+        author: storedUser ? storedUser.name : "Unknown Chef",
       };
 
 
-      // 4 .Smart Category Image Logic
+      // 3 .Smart Category Image Logic
       if (!finalRecipe.image || finalRecipe.image.includes("random") || finalRecipe.image === "") {
         const category = (finalRecipe.category || "").toLowerCase();
         if (category.includes("veg") && !category.includes("non")) {
@@ -87,30 +89,36 @@ function App() {
         }
       }
 
+      // 4. API Calls
       if (editRecipe) {
         // UPDATE LOGIC (we use editRecipe._id instead of id)        await updateRecipe(editRecipe.id, finalRecipe);
-        await updateRecipe(editRecipe._id, finalRecipe);
+        // await updateRecipe(editRecipe._id, finalRecipe);
+        await updateRecipeApi(editRecipe._id, finalRecipe);
         toast.success("Recipe Updated Successfully! ✏️");
       } else {
         // CREATE LOGIC (Since it is a new recipe, _id is not required; MongoDB will generate it automatically)        await createRecipe(finalRecipe);
-        await createRecipe(finalRecipe);
+        // await createRecipe(finalRecipe);
+        await addRecipeApi(finalRecipe);
         toast.success("Recipe added perfectly! ✨");
       }
 
-// 🆕 The modal should be closed only after success.
+      // 🆕 The modal should be closed only after success.
       setShowAddModal(false);
 
       setTimeout(() => {
         window.location.reload();
-      // }, 1500);
+        // }, 1500);
       }, 1000);
 
     } catch (error) {
-      toast.error("Failed to save recipe! Please try again.");
       console.error("Save Error:", error);
+      // toast.error("Failed to save recipe! Please try again.");      
+      toast.error(error.message || "Failed to save recipe!");
     } finally {
-      setEditRecipe(null);
+      // setEditRecipe(null);
+      // setIsSaving(false);
       setIsSaving(false);
+      setEditRecipe(null);
     }
   };
 

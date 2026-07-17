@@ -62,6 +62,10 @@ function Login() {
         toast.success(`Welcome back, ${data.user.name || 'Chef'}! 👩‍🍳`);
         sessionStorage.setItem("isLoggedIn", "true");
         sessionStorage.setItem("user", JSON.stringify(data.user));
+
+        // 🆕 Storing the JWT token in the session
+        sessionStorage.setItem("token", data.token);
+
         navigate('/home');
       } else {
         toast.error(data.message || "Invalid email or password! ❌");

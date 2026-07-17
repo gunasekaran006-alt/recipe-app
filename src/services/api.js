@@ -8,11 +8,14 @@ export const getRecipes = async () => {
     return await response.json();
 };
 
-// Add a new recipe
-export const createRecipe = async (recipe) => {
+// Add a new recipe - The token must be sent when making the API call from AddRecipeModal.jsx.
+export const createRecipe = async (recipe, token) => {
     const response = await fetch(API_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(recipe),
     });
     // return await response.json();
@@ -26,10 +29,14 @@ export const createRecipe = async (recipe) => {
 };
 
 // Update an existing recipe (NEWLY ADDED)
-export const updateRecipe = async (id, updatedRecipe) => {
+export const updateRecipe = async (id, updatedRecipe, token) => {
     const response = await fetch(`${API_URL}/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+
         body: JSON.stringify(updatedRecipe),
     });
     // return await response.json();
@@ -38,17 +45,26 @@ export const updateRecipe = async (id, updatedRecipe) => {
 
     // Same error handling for 🆕 Update 
     if (!response.ok) {
-        throw new Error(data.error || data.message || "Failed to update recipe");
+        if (response.status === 401) throw new Error("Invalid Token");
+        // throw new Error(data.error || data.message || "Failed to update recipe");
+        throw new Error(data.message || "Failed to process");
     }
     return data;
 };
 
 // Delete a recipe
-export const deleteRecipe = async (id) => {
-    // await fetch(`${API_URL}/${id}`, {
+// export const deleteRecipe = async (id) => {
+//     // await fetch(`${API_URL}/${id}`, {
+//     const response = await fetch(`${API_URL}/${id}`, {
+//         method: 'DELETE',
+export const deleteRecipe = async (id, token) => {
     const response = await fetch(`${API_URL}/${id}`, {
         method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${token}` // 🆕 Token should be added here
+        }
     });
+
     if (!response.ok) {
         throw new Error("Failed to delete recipe");
     }

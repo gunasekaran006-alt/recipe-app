@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -42,7 +42,13 @@ function App() {
     };
   }, []);
 
-  const handleSaveRecipe = async (recipeData) => {
+  const handleSaveRecipe = async (recipeData, token) => { // 🆕 We receive the token here.
+    // 🆕 Block if there is no token
+    if (!token) {
+      toast.error("Session expired! Please login again.");
+      return;
+    }
+
     if (isSaving) return;
     setIsSaving(true);
     // setShowAddModal(false); // 🆕 The modal should be closed only after success; therefore, we are avoiding it here.
@@ -51,7 +57,6 @@ function App() {
       // const { id, ...cleanData } = recipeData;
       // 1. We extract the old id that is no longer needed and take only the remaining data (cleanData).
       let { id, _id, ...cleanData } = recipeData;
-
 
 
       // // Generate our own custom ID to ensure it stays at the top of the object
@@ -71,9 +76,9 @@ function App() {
       let finalRecipe = {
         ...cleanData,
         // author: authorName, // 🆕 Login name! 
-        author: storedUser ? storedUser.name : "Unknown Chef",
+        // author: storedUser ? storedUser.name : "Unknown Chef",};
+        author: storedUser?.name || "Unknown Chef"
       };
-
 
       // 3 .Smart Category Image Logic
       if (!finalRecipe.image || finalRecipe.image.includes("random") || finalRecipe.image === "") {
@@ -91,34 +96,44 @@ function App() {
 
       // 4. API Calls
       if (editRecipe) {
-        // UPDATE LOGIC (we use editRecipe._id instead of id)        await updateRecipe(editRecipe.id, finalRecipe);
+        // UPDATE LOGIC (we use editRecipe._id instead of id)        
+        // await updateRecipe(editRecipe.id, finalRecipe);
         // await updateRecipe(editRecipe._id, finalRecipe);
-        await updateRecipeApi(editRecipe._id, finalRecipe);
+        await updateRecipeApi(editRecipe._id, finalRecipe, token);
         toast.success("Recipe Updated Successfully! ✏️");
       } else {
         // CREATE LOGIC (Since it is a new recipe, _id is not required; MongoDB will generate it automatically)        await createRecipe(finalRecipe);
         // await createRecipe(finalRecipe);
-        await addRecipeApi(finalRecipe);
+        await addRecipeApi(finalRecipe, token);
         toast.success("Recipe added perfectly! ✨");
       }
 
       // 🆕 The modal should be closed only after success.
       setShowAddModal(false);
-
       setTimeout(() => {
         window.location.reload();
         // }, 1500);
-      }, 1000);
+      }, 2000);
 
     } catch (error) {
-      console.error("Save Error:", error);
+      console.error("Save Error Details:", error);
       // toast.error("Failed to save recipe! Please try again.");      
-      toast.error(error.message || "Failed to save recipe!");
+      // If a token error occurs, display it separately.
+      // toast.error(error.message || "Failed to save recipe!");
+      // toast.error(error.message === "Invalid Token" ? "Session expired! Please login again." : error.message);
+      if (error.message.includes("Token")|| error.message.includes("401")) {
+        toast.error("Session expired! Please login again.");
+        sessionStorage.clear();
+        // navigate('/login');
+        window.location.href = '/login';
+      } else {
+        toast.error("Error: " + error.message);
+      }
     } finally {
       // setEditRecipe(null);
       // setIsSaving(false);
       setIsSaving(false);
-      setEditRecipe(null);
+      // setEditRecipe(null);
     }
   };
 

@@ -91,17 +91,25 @@ function Home() {
     const confirmAndExecuteDelete = async () => {
         if (recipeToDelete) {
             try {
-                await deleteRecipe(recipeToDelete);
+                // 🆕 Get the token
+                const token = sessionStorage.getItem("token");
+
+                if (!token) {
+                    toast.error("Session expired! Please login again.");
+                    return;
+                }
+                // 🆕 Pass the token as an argument
+                await deleteRecipe(recipeToDelete, token);
 
                 // Update UI State
                 // const updatedRecipes = recipes.filter(recipe => recipe.id !== String(recipeToDelete) && recipe.id !== Number(recipeToDelete));
-                const updatedRecipes = recipes.filter(recipe => recipe._id !== String(recipeToDelete) && recipe._id !== Number(recipeToDelete));
+                // const updatedRecipes = recipes.filter(recipe => recipe._id !== String(recipeToDelete) && recipe._id !== Number(recipeToDelete));
+                const updatedRecipes = recipes.filter(r => r._id !== String(recipeToDelete));
                 setRecipes(updatedRecipes);
-                setSelectedRecipe(null);
-
+                // setSelectedRecipe(null);
                 toast.success("Recipe deleted successfully! 🗑️");
             } catch (error) {
-                toast.error("Failed to delete recipe. Please try again.");
+                toast.error("Failed to delete recipe. Maybe you are not logged in!");
                 console.error("Delete Error:", error);
             } finally {
                 // Close the modal and reset state

@@ -170,7 +170,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
       // We send the old _id when editing. Nothing new is required when adding (MongoDB handles it).
       id: editRecipe ? editRecipe._id : undefined,
       ingredients: ingredientsArray,
-      author: authorName, // 🆕 Name of the logged-in user!
+      // author: authorName, // 🆕 Name of the logged-in user!
+      author: storedUser ? storedUser.name : "Unknown Chef",
       nutrition: {
         calories: newRecipe.calories || "N/A",
         protein: newRecipe.protein || "N/A",
@@ -178,8 +179,20 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         fat: newRecipe.fat || "N/A"
       }
     };
-    // Sending to the API logic in Home.jsx
-    onAddRecipe(recipeToAdd);
+    // // Sending to the API logic in Home.jsx
+    // onAddRecipe(recipeToAdd);
+
+    // At the end of the handleSubmit function:
+    const token = sessionStorage.getItem("token");
+
+    // 🆕 Stop immediately if there is no token
+    if (!token) {
+      toast.error("Session expired! Please login again.");
+      return;
+    }
+
+    onAddRecipe(recipeToAdd, token); // 🆕 Send the token to App.js
+
   };
 
   if (!show) return null;

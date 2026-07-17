@@ -165,6 +165,7 @@ function Home() {
                                             setSelectedRecipe={setSelectedRecipe}
                                             isFavorite={favorites.includes(String(recipe._id))}
                                             onFavoriteToggle={toggleFavorite}
+                                            onDelete={handleDeleteRecipe}
                                         />
                                     ))}
                                 </div>
@@ -185,6 +186,7 @@ function Home() {
                                                 setSelectedRecipe={setSelectedRecipe}
                                                 isFavorite={favorites.includes(String(recipe._id))}
                                                 onFavoriteToggle={toggleFavorite}
+                                                onDelete={handleDeleteRecipe}
                                             />
                                         ))}
                                     </div>
@@ -204,6 +206,7 @@ function Home() {
                                                 setSelectedRecipe={setSelectedRecipe}
                                                 isFavorite={favorites.includes(String(recipe._id))}
                                                 onFavoriteToggle={toggleFavorite}
+                                                onDelete={handleDeleteRecipe}
                                             />
                                         ))}
                                     </div>
@@ -226,6 +229,7 @@ function Home() {
                                                 setSelectedRecipe={setSelectedRecipe}
                                                 isFavorite={favorites.includes(String(recipe._id))}
                                                 onFavoriteToggle={toggleFavorite}
+                                                onDelete={handleDeleteRecipe}
                                             />
                                         ))}
                                     </div>

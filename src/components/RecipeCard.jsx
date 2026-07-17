@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
 
-function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle }) {
+function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, onDelete }) {
   // Logic to render stars based on recipe.rating dynamically
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+    await onDelete(recipe._id);
+    setIsLoading(false);
+  };
+
+
   const renderStars = (rating) => {
     const stars = [];
-    const score = rating || 0; 
+    const score = rating || 0;
     for (let i = 1; i <= 5; i++) {
       stars.push(
         <span key={i} className={i <= Math.round(score) ? "text-warning" : "text-muted"} style={{ fontSize: '13px' }}>
@@ -17,8 +27,8 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle })
 
   return (
     <div className="col-lg-4 col-md-6 mb-4">
-      <div 
-        className="card h-100 shadow-sm border-0 bg-white" 
+      <div
+        className="card h-100 shadow-sm border-0 bg-white"
         style={{ borderRadius: '16px', overflow: 'hidden', transition: 'transform 0.2s' }}
         onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
         onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}
@@ -26,11 +36,11 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle })
         {/* Recipe Image, Favorite Button & Difficulty Badge */}
         <div className="position-relative">
           <img src={recipe.image} className="card-img-top" style={{ height: '220px', objectFit: 'cover' }} alt={recipe.name} />
-          
+
           <div className="position-absolute top-0 end-0 m-3 d-flex gap-2" style={{ zIndex: '10' }}>
             {/* Heart Toggle Button */}
-            <button 
-              className="btn btn-sm btn-light rounded-circle shadow-sm opacity-90 d-flex align-items-center justify-content-center" 
+            <button
+              className="btn btn-sm btn-light rounded-circle shadow-sm opacity-90 d-flex align-items-center justify-content-center"
               style={{ width: '35px', height: '35px', border: 'none' }}
               onClick={(e) => {
                 e.stopPropagation(); // Prevents opening the modal when clicking the heart icon
@@ -48,17 +58,17 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle })
             )}
           </div>
         </div>
-        
+
         <div className="card-body p-3 d-flex flex-column justify-content-between">
           <div>
             {/* Category Tag */}
             <span className="text-primary fw-bold small text-uppercase" style={{ fontSize: '11px', letterSpacing: '0.5px' }}>
               {recipe.category}
             </span>
-            
+
             {/* Recipe Name */}
             <h5 className="card-title fw-bold my-1 text-dark" style={{ fontSize: '1.2rem' }}>{recipe.name}</h5>
-            
+
             {/* Recipe Description from DB */}
             <p className="card-text text-muted small mb-3 text-truncate-2" style={{ display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
               {recipe.description}
@@ -79,7 +89,7 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle })
               </div>
               <span className="text-muted fw-semibold" style={{ fontSize: '13px' }}>{recipe.author || 'Anonymous'}</span>
             </div>
-            
+
             {/* Exact rating & reviews count from DB */}
             <div className="small">
               {renderStars(recipe.rating)}
@@ -89,9 +99,25 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle })
             </div>
           </div>
 
-          <button className="btn btn-primary w-100 mt-3 rounded-pill fw-bold shadow-sm" onClick={() => setSelectedRecipe(recipe)}>
+          {/* <button className="btn btn-primary w-100 mt-3 rounded-pill fw-bold shadow-sm" onClick={() => setSelectedRecipe(recipe)}>
             View Details
-          </button>
+          </button> */}
+
+          <div className="d-flex gap-2 mt-3">
+            <button className="btn btn-primary w-100 rounded-pill fw-bold" onClick={() => setSelectedRecipe(recipe)}>
+              View Details
+            </button>
+
+            {/* Add only this button */}
+            <button
+              className="btn btn-outline-danger rounded-pill fw-bold"
+              disabled={isLoading}
+              onClick={handleDelete}
+            >
+              {isLoading ? "..." : "🗑️"}
+            </button>
+          </div>
+
         </div>
       </div>
     </div>

@@ -73,9 +73,20 @@ exports.registerApi = async (req, res) => {
             password: hashedPassword // Save the hashed password instead of raw password
         });
 
-        await newUser.save(); // We are saving it to the MongoDB database!
+        // await newUser.save(); // We are saving it to the MongoDB database!
 
-        res.status(201).json({ message: "User Registration Successful! 🎉", user: newUser });
+        // res.status(201).json({ message: "User Registration Successful! 🎉", user: newUser });
+        
+        await newUser.save();
+        res.status(201).json({
+            message: "User Registration Successful! 🎉",
+            user: {
+                _id: newUser._id,
+                name: newUser.name,
+                email: newUser.email
+            }
+        });
+
     } catch (error) {
         // We catch the error to prevent the server from crashing.
         res.status(500).json({ message: "Server Error during registration", error: error.message });
@@ -110,10 +121,10 @@ exports.loginApi = async (req, res) => {
         // message: "Welcome back!", user });
 
         // Send token and user data (without password) to the frontend
-        res.status(200).json({ 
-            message: "Welcome back!", 
-            token, 
-            user: { _id: user._id, name: user.name, email: user.email } 
+        res.status(200).json({
+            message: "Welcome back!",
+            token,
+            user: { _id: user._id, name: user.name, email: user.email }
         });
     } catch (error) {
         res.status(500).json({ message: "Server Error during login", error: error.message });

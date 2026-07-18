@@ -6,13 +6,13 @@ const authMiddleware = require("../middleware/auth.middleware");
 // 🆕 Aggregation API Route (Important: This must be placed above /:id)
 router.get("/recipes/stats", recipeController.getRecipeStats);
 // http://localhost:8080/api/recipes
-router.get("/recipes", recipeController.getRecipes);
+router.get("/", authMiddleware, recipeController.getRecipes);
 
 //(Note: This is not required for the getRecipes route, because everyone needs to be able to view recipes.)
 // Add, Update, and Delete operations only: add authMiddleware
-router.post("/recipes", authMiddleware, recipeController.createRecipe);
+router.post("/", authMiddleware, recipeController.createRecipe);
 // Its ID (:id) is required to modify or delete a specific recipe.
-router.put("/recipes/:id", authMiddleware, recipeController.updateRecipe);
-router.delete("/recipes/:id", authMiddleware, recipeController.deleteRecipe);
+router.put("/:id", authMiddleware, recipeController.updateRecipe);
+router.delete("/:id", authMiddleware, recipeController.deleteRecipe);
 
 module.exports = router;

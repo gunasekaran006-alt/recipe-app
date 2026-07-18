@@ -162,7 +162,8 @@ exports.createRecipe = async (req, res) => {
             difficulty,
             author,
             description,
-            nutrition
+            nutrition,
+            user: req.userId
         });
 
         await newRecipe.save(); // Saving to the database
@@ -177,7 +178,16 @@ exports.updateRecipe = async (req, res) => {
     try {
         const id = req.params.id;
 
+        // 1. Check if the recipe belongs to the user
+        const recipe = await Recipe.findOne({ _id: id, user: req.userId });
+
+        // 2. If the recipe does not exist (i.e., the user is not the owner)
+        if (!recipe) {
+            return res.status(401).json({ message: "Unauthorized: You don't own this recipe" });
+        }
+
         // 🆕 We also convert the name to Title Case during updates
+        // 3. We will update this once ownership is confirmed.
         if (req.body.name) {
             req.body.name = toTitleCase(req.body.name);
         }
@@ -197,17 +207,36 @@ exports.updateRecipe = async (req, res) => {
 };
 
 // 4. DELETE API - Remove a recipe from MongoDB
+// // stage:1 ( // There is no ownership check here!)
+// exports.deleteRecipe = async (req, res) => {
+//     try {
+//         const id = req.params.id;
+
+//         // Mongoose Command: db.recipes.deleteOne()
+//         const deletedRecipe = await Recipe.findByIdAndDelete(id);
+
+//         if (!deletedRecipe) {
+//             return res.status(404).json({ message: "Recipe Not Found! ❌" });
+//         }
+
+//         res.status(200).json({ message: "Recipe Deleted Successfully! 🗑️" });
+//     } catch (error) {
+//         res.status(500).json({ message: "Error deleting recipe", error: error.message });
+//     }
+// };
+// stage:2 // ownership checked here!
 exports.deleteRecipe = async (req, res) => {
     try {
         const id = req.params.id;
 
-        // Mongoose Command: db.recipes.deleteOne()
-        const deletedRecipe = await Recipe.findByIdAndDelete(id);
-
-        if (!deletedRecipe) {
-            return res.status(404).json({ message: "Recipe Not Found! ❌" });
+        // 🆕 OWNERSHIP CHECK (this is important!) 
+        const recipe = await Recipe.findOne({ _id: id, user: req.userId });
+        if (!recipe) {
+            return res.status(401).json({ message: "Unauthorized: You don't own this recipe" });
         }
 
+        // Now safe to delete 
+        await Recipe.findByIdAndDelete(id);
         res.status(200).json({ message: "Recipe Deleted Successfully! 🗑️" });
     } catch (error) {
         res.status(500).json({ message: "Error deleting recipe", error: error.message });

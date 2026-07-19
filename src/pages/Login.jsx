@@ -8,6 +8,7 @@ function Login() {
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    console.log("Login button clicked");
 
     // ==========================================
     // 🛡️ JAVASCRIPT FORM VALIDATION LOGIC
@@ -58,9 +59,9 @@ function Login() {
 
       const data = await response.json();
 
-      if (response.ok) {
+      if (response.ok && data.token) {
         toast.success(`Welcome back, ${data.user.name || 'Chef'}! 👩‍🍳`);
-        sessionStorage.setItem("isLoggedIn", "true");
+        // sessionStorage.setItem("isLoggedIn", "true");
         sessionStorage.setItem("user", JSON.stringify(data.user));
 
         // 🆕 Storing the JWT token in the session

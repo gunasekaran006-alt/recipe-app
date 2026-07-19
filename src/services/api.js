@@ -84,7 +84,9 @@
 
 
 // STEP: 2
-const API_URL = 'http://localhost:8080/api/recipes';
+// const API_URL = 'http://localhost:8080/api/recipes';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/recipes';
+
 
 // Generic Fetch Helper - Use this to avoid writing fetch repeatedly
 const apiRequest = async (url, method = 'GET', data = null, token = null) => {
@@ -99,7 +101,10 @@ const apiRequest = async (url, method = 'GET', data = null, token = null) => {
 
     if (!response.ok) {
         if (response.status === 401) {
-            sessionStorage.clear();
+            // sessionStorage.clear();
+            sessionStorage.removeItem("token");
+            sessionStorage.removeItem("user");
+
             window.location.href = '/login';
         }
         throw new Error(result.message || "Something went wrong!");
@@ -108,7 +113,8 @@ const apiRequest = async (url, method = 'GET', data = null, token = null) => {
 };
 
 // new functions
-export const getRecipes = async () => await apiRequest(API_URL);
+// export const getRecipes = async () => await apiRequest(API_URL);
+export const getRecipes = async (token) => await apiRequest(API_URL, 'GET', null, token);
 
 export const createRecipe = async (recipe, token) => await apiRequest(API_URL, 'POST', recipe, token);
 

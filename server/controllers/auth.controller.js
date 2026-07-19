@@ -114,7 +114,7 @@ exports.loginApi = async (req, res) => {
         }
 
         // 🆕 Generate JWT Token (Valid for 1 day)
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
 
         // res.status(200).json({ 

@@ -142,6 +142,9 @@ exports.getRecipes = async (req, res) => {
 // 2. POST API - Create a new recipe in MongoDB
 exports.createRecipe = async (req, res) => {
     try {
+
+        console.log("UserID from middleware:", req.userId);
+
         // 🆕 We are also extracting the new fields from req.body
         let { name, category, image, ingredients, instructions, time, servings, description, difficulty, author, rating, reviews, nutrition } = req.body;
 
@@ -150,7 +153,8 @@ exports.createRecipe = async (req, res) => {
 
         // Mongoose Command: db.recipes.insertOne()
         const newRecipe = new Recipe({
-            name,
+            // name,
+            name: toTitleCase(name),
             category,
             image,
             ingredients,
@@ -162,6 +166,7 @@ exports.createRecipe = async (req, res) => {
             difficulty,
             author,
             description,
+            // nutrition: req.body.nutrition,
             nutrition,
             user: req.userId
         });
@@ -169,6 +174,7 @@ exports.createRecipe = async (req, res) => {
         await newRecipe.save(); // Saving to the database
         res.status(201).json({ message: "Recipe Added Successfully! ✨", data: newRecipe });
     } catch (error) {
+        console.error("Backend Error:", error);
         res.status(500).json({ message: "Error saving recipe", error: error.message });
     }
 };

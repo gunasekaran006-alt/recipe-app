@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 
 function Navbar() {
   const navigate = useNavigate();
-  
+
   // State to control the custom logout modal
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
@@ -15,10 +15,21 @@ function Navbar() {
 
   // Actual logout logic when clicking "Yes, Logout"
   const confirmLogout = () => {
-    sessionStorage.clear(); 
+
+    // 1. Temporarily store the favorites in a variable
+    // const savedFavorites = sessionStorage.getItem('recipe_favorites'); ---> Unused Variable
+
+    // 2. Instead of clearing everything, remove only the token
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
+
+    // 3. If favorites exist, keep them as they are
+    // (It is best to remove only what needs to be deleted)
+
+    // sessionStorage.clear(); 
     setShowLogoutModal(false);
     toast.info("Logged out successfully! 👋");
-    navigate('/login'); 
+    navigate('/login');
   };
 
   return (

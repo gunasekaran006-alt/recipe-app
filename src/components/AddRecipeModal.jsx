@@ -72,7 +72,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         I am building a recipe sharing application. Provide realistic recipe details for a dish named "${newRecipe.name}".
         Return ONLY a valid JSON object with the exact structure below. Do not include any markdown tags like \`\`\`json.
         {
-          "category": "Veg, Non-Veg, Dessert, Italian, South Indian, Chinese, or Fast Food",
+          // "category": "Veg, Non-Veg, Dessert, Italian, South Indian, Chinese, or Fast Food",
+          "category": "Choose EXACTLY ONE from this list: Veg, Non-Veg, Dessert, Italian, South Indian, Chinese, Fast Food",
           "description": "A catchy, delicious 2-line description of the dish",
           "time": "e.g., 30 mins",
           "servings": "e.g., 2 Servings",
@@ -128,7 +129,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
       setNewRecipe(prev => ({
         ...prev,
-        category: aiData.category || "Veg",
+        // category: aiData.category || "Veg",
+        category: aiData.category ? aiData.category.split(',')[0].trim() : "Veg",
         description: aiData.description || "",
         time: aiData.time || "",
         servings: aiData.servings || "",

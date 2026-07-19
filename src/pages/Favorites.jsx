@@ -7,6 +7,14 @@ import { getRecipes } from '../services/api';
 function Favorites() {
   const [recipes, setRecipes] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+
+  // type:1
+  // const [favorites, setFavorites] = useState(() => {
+  //   const saved = sessionStorage.getItem('recipe_favorites');
+  //   return saved ? JSON.parse(saved).map(String) : [];
+  // });
+
+  // type: 2
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem('recipe_favorites');
     return saved ? JSON.parse(saved).map(String) : [];
@@ -25,6 +33,8 @@ function Favorites() {
     const targetId = String(recipeId);
     const updatedFavorites = favorites.filter(id => id !== targetId);
     setFavorites(updatedFavorites);
+
+    // sessionStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
     localStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
   };
 

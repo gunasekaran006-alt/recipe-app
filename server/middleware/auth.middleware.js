@@ -9,7 +9,7 @@ module.exports = (req, res, next) => {
 
     // Idea:2
     const authHeader = req.header("Authorization");
-    console.log("Headers received:", req.headers); // 🆕 Checking this will reveal whether the token is being received.
+    // console.log("Headers received:", req.headers); // 🆕 Checking this will reveal whether the token is being received.
     if (!authHeader) return res.status(401).json({ message: "No Token" });
 
     // 🆕 Extracting the token here (from 'Bearer')
@@ -19,7 +19,8 @@ module.exports = (req, res, next) => {
         console.log("Checking Token:", token);
         // 2. Verify the token
         const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = verified; // Add user ID to the request
+        console.log("Verified Payload:", verified);
+        req.userId = verified.id; // Add user ID to the request
         next();
     } catch (err) {
         res.status(400).json({ message: "Invalid Token" });

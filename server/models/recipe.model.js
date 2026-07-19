@@ -14,10 +14,11 @@ const recipeSchema = new mongoose.Schema({
     name: { type: String, required: true, index: true },
     category: {
         type: String,
-        required: true,
         index: true, // 🆕 Indexing to speed up category filtering
+        
         // Validation Rule!
-        enum: ["Veg", "Non-Veg", "Italian", "South Indian", "Chinese", "Dessert", "Fast Food"]
+        enum: ["Veg", "Non-Veg", "Italian", "South Indian", "Chinese", "Dessert", "Fast Food"],
+        required: true
     },
     image: { type: String },
     ingredients: { type: [String], required: true }, // Array of strings
@@ -37,7 +38,7 @@ const recipeSchema = new mongoose.Schema({
         carbs: { type: String },
         fat: { type: String }
     },
-user: {
+    user: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: "User"

@@ -3,10 +3,9 @@ const router = express.Router();
 const recipeController = require("../controllers/recipe.controller");
 const authMiddleware = require("../middleware/auth.middleware");
 
-// 🆕 Aggregation API Route (Important: This must be placed above /:id)
-router.get("/recipes/stats", recipeController.getRecipeStats);
+router.get("/stats", recipeController.getRecipeStats);
 // http://localhost:8080/api/recipes
-router.get("/", authMiddleware, recipeController.getRecipes);
+router.get("/", recipeController.getRecipes);
 
 //(Note: This is not required for the getRecipes route, because everyone needs to be able to view recipes.)
 // Add, Update, and Delete operations only: add authMiddleware

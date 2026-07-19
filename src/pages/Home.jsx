@@ -32,13 +32,43 @@ function Home() {
         localStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
     };
 
+    // useEffect(() => {
+    //     const token = sessionStorage.getItem("token");
+
+    //     getRecipes(token).then(data => {
+    //         if (data) {
+    //             setRecipes(data.reverse());
+    //         }
+    //     });
+    // }, []);
+
+
+    // useEffect(() => {
+    //     getRecipes().then(data => {
+    //         // Only call reverse() if data is an array
+    //         if (Array.isArray(data)) {
+    //             setRecipes(data.reverse());
+    //         } else {
+    //             console.error("Expected array but got:", data);
+    //             setRecipes([]); // Set to empty if no valid data
+    //         }
+    //     }).catch(err => console.error(err));
+    // }, []);
+
+
     useEffect(() => {
-        getRecipes().then(data => {
-            setRecipes(data.reverse());
-        });
+        const token = sessionStorage.getItem("token");
+        getRecipes(token).then(data => {
+            // If data.data is your actual recipe list:
+            if (data && Array.isArray(data)) {
+                setRecipes(data.reverse());
+            } else if (data && data.data && Array.isArray(data.data)) {
+                setRecipes(data.data.reverse());
+            } else {
+                setRecipes([]);
+            }
+        }).catch(err => console.error("API Error:", err));
     }, []);
-
-
 
     // STAGE:1
     // const filteredRecipes = recipes.filter(r =>

@@ -6,22 +6,28 @@ require('dotenv').config();
 const rateLimit = require('express-rate-limit');
 const dns = require("dns");
 
+// Initialize Express App
+const app = express();
+
+
 // dns.setServers(["1.1.1.1", "8.8.8.8"]);
 if (process.env.NODE_ENV === "development") {
     dns.setServers(["1.1.1.1", "8.8.8.8"]);
 }
 
+
+// Import Routes and Middlewares
+const recipeRoutes = require("./routes/recipe.routes");
+const authRoutes = require("./routes/auth.routes");
 const errorMiddleware = require('./middleware/error.middleware');
+
 
 // 🆕 Bringing in the database connection
 const dbConnection = require("./config/dbconnection");
 dbConnection(); // Connecting!
 
 
-// Initialize Express App
-const app = express();
-
-
+// Middlewares configuration
 app.use(express.json()); // To parse JSON bodies
 app.use(cors()); // To allow cross-origin requests from React
 
@@ -31,6 +37,7 @@ const limiter = rateLimit({
     max: 100, // limit each IP to 100 requests per windowMs
     message: "Too many requests, please try again after 5 minutes."
 });
+
 
 // Apply rate limiter to all API routes
 app.use("/api", limiter);
@@ -42,15 +49,14 @@ app.get('/', (req, res) => {
 });
 
 
-// 🔗 We are linking our Recipe Routes here!
-const recipeRoutes = require("./routes/recipe.routes");
-const authRoutes = require("./routes/auth.routes");
+// 🔗 Linking API Routes
+app.use("/api/recipes", recipeRoutes);
+app.use("/api/auth", authRoutes);
 
-// Apply to all API routes
-app.use("/api", recipeRoutes); // /api will appear before every URL
-app.use("/api/auth", authRoutes); // 🆕 Auth Routes Link
 
+// ⚠️ Error Middleware (must always be last)
 app.use(errorMiddleware);
+
 
 // Start Server
 const PORT = process.env.PORT || 8080;

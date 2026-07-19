@@ -121,9 +121,13 @@ function App() {
       // If a token error occurs, display it separately.
       // toast.error(error.message || "Failed to save recipe!");
       // toast.error(error.message === "Invalid Token" ? "Session expired! Please login again." : error.message);
-      if (error.message.includes("Token")|| error.message.includes("401")) {
+      if (error.message.includes("Token") || error.message.includes("401")) {
         toast.error("Session expired! Please login again.");
-        sessionStorage.clear();
+        // sessionStorage.clear();
+
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("user");
+
         // navigate('/login');
         window.location.href = '/login';
       } else {
@@ -152,7 +156,8 @@ function App() {
       <div className="d-flex flex-column min-vh-100">
         <div className="flex-grow-1">
           <Routes>
-            <Route path="/" element={<Navigate to="/login" />} />
+            {/* <Route path="/" element={<Navigate to="/login" />} /> */}
+            <Route path="/" element={sessionStorage.getItem("token") ? <Navigate to="/home" /> : <Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />

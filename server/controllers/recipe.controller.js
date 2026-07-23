@@ -130,9 +130,9 @@ exports.getRecipes = async (req, res) => {
         // Mongoose Command: db.recipes.find()
         const recipes = await Recipe.find();
 
-        if (recipes.length === 0) {
-            return res.status(200).json({ message: "No Recipes Found 🍽️", data: [] });
-        }
+        // if (recipes.length === 0) {
+        //     return res.status(200).json({ message: "No Recipes Found 🍽️", data: [] });
+        // }
         res.status(200).json(recipes);
     } catch (error) {
         res.status(500).json({ message: "Server Error", error: error.message });

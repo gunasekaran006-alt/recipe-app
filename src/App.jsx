@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-route
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
+
 import Signup from './pages/Signup';
 import Login from './pages/Login';
 import Home from './pages/Home';
@@ -12,10 +13,19 @@ import Settings from './pages/Settings';
 import Footer from './components/Footer';
 import ProtectedRoute from './components/ProtectedRoute';
 import AddRecipeModal from './components/AddRecipeModal';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
+
 
 // Make sure updateRecipe is imported here
 // import { getRecipes, createRecipe, updateRecipe } from './services/api';
 import { getRecipes, createRecipe as addRecipeApi, updateRecipe as updateRecipeApi } from './services/api';
+
+
+
+
+
+
 
 function App() {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -42,10 +52,14 @@ function App() {
     };
   }, []);
 
-  const handleSaveRecipe = async (recipeData, token) => { // 🆕 We receive the token here.
+  const handleSaveRecipe = async (recipeData) => {
+    // const storedUser = JSON.parse(sessionStorage.getItem('user'));
+    // const userName = sessionStorage.getItem("userName");
+    const storedUser = JSON.parse(sessionStorage.getItem('user'));
     // 🆕 Block if there is no token
-    if (!token) {
+    if (!storedUser || !storedUser.email) {
       toast.error("Session expired! Please login again.");
+      window.location.href = '/login';
       return;
     }
 
@@ -59,6 +73,7 @@ function App() {
       let { id, _id, ...cleanData } = recipeData;
 
 
+
       // // Generate our own custom ID to ensure it stays at the top of the object
       // const customId = "rec_" + Math.random().toString(36).substr(2, 9);
 
@@ -69,7 +84,7 @@ function App() {
       // };
 
       // 2. Get the name of the logged in user from the Session (Author Fix) 
-      const storedUser = JSON.parse(sessionStorage.getItem('user'));
+      // const storedUser = JSON.parse(sessionStorage.getItem('user'));
       // const authorName = storedUser ? storedUser.name : "Unknown Chef";
 
       // 3. The complete Data Object to send to the backend 
@@ -77,7 +92,9 @@ function App() {
         ...cleanData,
         // author: authorName, // 🆕 Login name! 
         // author: storedUser ? storedUser.name : "Unknown Chef",};
-        author: storedUser?.name || "Unknown Chef"
+        // author: storedUser?.name || "Unknown Chef"
+        // author: sessionStorage.getItem("userName") || "Chef"
+        author: storedUser?.name || storedUser?.email?.split('@')[0] || "Chef"
       };
 
       // 3 .Smart Category Image Logic
@@ -99,12 +116,12 @@ function App() {
         // UPDATE LOGIC (we use editRecipe._id instead of id)        
         // await updateRecipe(editRecipe.id, finalRecipe);
         // await updateRecipe(editRecipe._id, finalRecipe);
-        await updateRecipeApi(editRecipe._id, finalRecipe, token);
+        await updateRecipeApi(editRecipe._id, finalRecipe);
         toast.success("Recipe Updated Successfully! ✏️");
       } else {
         // CREATE LOGIC (Since it is a new recipe, _id is not required; MongoDB will generate it automatically)        await createRecipe(finalRecipe);
         // await createRecipe(finalRecipe);
-        await addRecipeApi(finalRecipe, token);
+        await addRecipeApi(finalRecipe);
         toast.success("Recipe added perfectly! ✨");
       }
 
@@ -157,9 +174,14 @@ function App() {
         <div className="flex-grow-1">
           <Routes>
             {/* <Route path="/" element={<Navigate to="/login" />} /> */}
-            <Route path="/" element={sessionStorage.getItem("token") ? <Navigate to="/home" /> : <Login />} />
+            {/* <Route path="/" element={sessionStorage.getItem("user") ? <Navigate to="/home" /> : <Login />} /> */}
+            <Route path="/" element={<Navigate to="/home" />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/login" element={<Login />} />
+
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+
             <Route path="/home" element={<ProtectedRoute><Home /></ProtectedRoute>} />
             <Route path="/favorites" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

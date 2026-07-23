@@ -1,3 +1,20 @@
+import axios from 'axios';
+
+const API = axios.create({
+    baseURL: "http://localhost:8080/api", // Your backend URL (you will change this on Render)
+    withCredentials: true // 👈 Crucial: This enables sending and accepting cookies!
+});
+
+export default API;
+
+
+
+
+
+
+
+
+
 
 // // STEP:1
 // // const API_URL = 'http://localhost:3000/recipes';
@@ -93,7 +110,7 @@ const apiRequest = async (url, method = 'GET', data = null, token = null) => {
     const headers = { 'Content-Type': 'application/json' };
     if (token) headers['Authorization'] = `Bearer ${token}`;
 
-    const config = { method, headers };
+    const config = { method, headers, credentials: 'include' };
     if (data) config.body = JSON.stringify(data);
 
     const response = await fetch(url, config);
@@ -102,8 +119,8 @@ const apiRequest = async (url, method = 'GET', data = null, token = null) => {
     if (!response.ok) {
         if (response.status === 401) {
             // sessionStorage.clear();
-            sessionStorage.removeItem("token");
-            sessionStorage.removeItem("user");
+            sessionStorage.removeItem("userName");
+            // sessionStorage.removeItem("user");
 
             window.location.href = '/login';
         }
@@ -112,14 +129,9 @@ const apiRequest = async (url, method = 'GET', data = null, token = null) => {
     return result;
 };
 
-// new functions
-// export const getRecipes = async () => await apiRequest(API_URL);
-export const getRecipes = async (token) => await apiRequest(API_URL, 'GET', null, token);
-
-export const createRecipe = async (recipe, token) => await apiRequest(API_URL, 'POST', recipe, token);
-
-export const updateRecipe = async (id, updatedRecipe, token) => await apiRequest(`${API_URL}/${id}`, 'PUT', updatedRecipe, token);
-
-export const deleteRecipe = async (id, token) => await apiRequest(`${API_URL}/${id}`, 'DELETE', null, token);
-
+// API Functions
+export const getRecipes = async () => await apiRequest(API_URL);
+export const createRecipe = async (recipe) => await apiRequest(API_URL, 'POST', recipe);
+export const updateRecipe = async (id, updatedRecipe) => await apiRequest(`${API_URL}/${id}`, 'PUT', updatedRecipe);
+export const deleteRecipe = async (id) => await apiRequest(`${API_URL}/${id}`, 'DELETE');
 export const getRecipeStats = async () => await apiRequest(`${API_URL}/stats`);

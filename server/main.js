@@ -5,6 +5,8 @@ const mongoose = require('mongoose');
 require('dotenv').config();
 const rateLimit = require('express-rate-limit');
 const dns = require("dns");
+const cookieParser = require("cookie-parser");
+const passwordRoutes = require("./routes/passwordRoutes");
 
 // Initialize Express App
 const app = express();
@@ -29,7 +31,12 @@ dbConnection(); // Connecting!
 
 // Middlewares configuration
 app.use(express.json()); // To parse JSON bodies
-app.use(cors()); // To allow cross-origin requests from React
+// To allow cross-origin requests from React
+app.use(cors({
+    origin: "http://localhost:5173", 
+    credentials: true // 👈 This is necessary to accept cookies
+})); 
+app.use(cookieParser());
 
 // Rate Limiter Configuration
 const limiter = rateLimit({
@@ -52,6 +59,8 @@ app.get('/', (req, res) => {
 // 🔗 Linking API Routes
 app.use("/api/recipes", recipeRoutes);
 app.use("/api/auth", authRoutes);
+
+app.use("/api/auth", passwordRoutes);
 
 
 // ⚠️ Error Middleware (must always be last)

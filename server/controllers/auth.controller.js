@@ -76,7 +76,7 @@ exports.registerApi = async (req, res) => {
         // await newUser.save(); // We are saving it to the MongoDB database!
 
         // res.status(201).json({ message: "User Registration Successful! 🎉", user: newUser });
-        
+
         await newUser.save();
         res.status(201).json({
             message: "User Registration Successful! 🎉",
@@ -116,17 +116,44 @@ exports.loginApi = async (req, res) => {
         // 🆕 Generate JWT Token (Valid for 1 day)
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-
         // res.status(200).json({ 
         // message: "Welcome back!", user });
 
-        // Send token and user data (without password) to the frontend
-        res.status(200).json({
+        // // Send token and user data (without password) to the frontend
+        // res.status(200).json({
+        //     message: "Welcome back!",
+        //     token,
+        //     user: { _id: user._id, name: user.name, email: user.email }
+        // });
+
+
+        // 🆕 Sending the token via an HttpOnly cookie (Secure Way)
+        res.cookie("token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production", // Works only when HTTPS is enabled in production (e.g., Render)
+            sameSite: "strict",
+            maxAge: 24 * 60 * 60 * 1000 // 1 Day
+        }).status(200).json({
             message: "Welcome back!",
-            token,
             user: { _id: user._id, name: user.name, email: user.email }
         });
+
     } catch (error) {
         res.status(500).json({ message: "Server Error during login", error: error.message });
+    }
+};
+
+
+
+exports.getProfile = async (req, res) => {
+    try {
+        // req.userId is the ID coming from your middleware (extracted from the token)
+        const user = await User.findById(req.userId).select("-password"); // Exclude the password
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        res.status(200).json({ user });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };

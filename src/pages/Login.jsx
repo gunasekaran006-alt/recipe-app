@@ -27,6 +27,9 @@ function Login() {
       return;
     }
 
+
+
+
     // ==========================================
 
     //   try {
@@ -54,18 +57,20 @@ function Login() {
       const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: login.email, password: login.password })
+        body: JSON.stringify({ email: login.email, password: login.password }),
+        credentials: 'include' // 👈 This is necessary to receive the cookie!
       });
 
       const data = await response.json();
 
-      if (response.ok && data.token) {
+      if (response.ok && data.user) {
         toast.success(`Welcome back, ${data.user.name || 'Chef'}! 👩‍🍳`);
         // sessionStorage.setItem("isLoggedIn", "true");
-        sessionStorage.setItem("user", JSON.stringify(data.user));
+        // sessionStorage.setItem("user", JSON.stringify(data.user));
 
-        // 🆕 Storing the JWT token in the session
-        sessionStorage.setItem("token", data.token);
+        // (Save only the name)
+        // sessionStorage.setItem("userName", data.user.name);
+        sessionStorage.setItem("user", JSON.stringify(data.user));
 
         navigate('/home');
       } else {
@@ -92,6 +97,14 @@ function Login() {
             <label className="form-label">Password</label>
             <input type="password" name="password" className="form-control form-control-lg" placeholder="••••••••" autoComplete="current-password" onChange={(e) => setLogin({ ...login, password: e.target.value })} required />
           </div>
+
+          {/* 🆕 Forgot Password Link (Correct placement inside the form UI) */}
+          <div className="text-end mb-3">
+            <a href="/forgot-password" style={{ textDecoration: 'none', color: '#007bff' }}>
+              Forgot Password?
+            </a>
+          </div>
+
           <button type="submit" className="btn btn-primary btn-lg w-100 shadow-sm mt-2">Login Now</button>
         </form>
         <div className="text-center mt-4">

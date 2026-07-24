@@ -3,52 +3,83 @@ import Navbar from '../components/Navbar';
 import RecipeCard from '../components/RecipeCard';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import { getRecipes } from '../services/api';
+import axios from 'axios';
 
 function Favorites() {
   const [recipes, setRecipes] = useState([]);
-  const [selectedRecipe, setSelectedRecipe] = useState(null);
+  const [favorites, setFavorites] = useState([]);
+  const [selectedRecipe, setSelectedRecipe] = useState();
 
-  // type:1
-  // const [favorites, setFavorites] = useState(() => {
-  //   const saved = sessionStorage.getItem('recipe_favorites');
-  //   return saved ? JSON.parse(saved).map(String) : [];
-  // });
-
-  // type: 2
-  const [favorites, setFavorites] = useState(() => {
-    const saved = localStorage.getItem('recipe_favorites');
-    return saved ? JSON.parse(saved).map(String) : [];
-  });
-
+  // 1. Fetching all recipes and the user's favorite IDs from the database
   useEffect(() => {
-    getRecipes().then(data => setRecipes(data));
+    const fetchFavoritesAndRecipes = async () => {
+      try {
+        // 1. Fetching all recipes
+        const recipeData = await getRecipes();
+        const allRecipes = Array.isArray(recipeData) ? recipeData : (recipeData.recipes || recipeData.data || []);
+        setRecipes(allRecipes);
+
+        // 2. 🛠️ Fetching the user's latest favorite IDs directly from the database (Backend Profile API)
+        const profileRes = await axios.get('http://localhost:8080/api/auth/me', { withCredentials: true });
+
+        if (profileRes.data && profileRes.data.user && profileRes.data.user.favorites) {
+          const dbFavorites = profileRes.data.user.favorites.map(String);
+          setFavorites(dbFavorites);
+
+          // Updating session storage as well
+          const currentUser = JSON.parse(sessionStorage.getItem('user')) || {};
+          currentUser.favorites = dbFavorites;
+          sessionStorage.setItem('user', JSON.stringify(currentUser));
+        }
+      } catch (error) {
+        console.error("Error fetching favorites data:", error);
+      }
+    };
+
+    fetchFavoritesAndRecipes();
   }, []);
 
-  // Filter only the recipes that are in the favorites list
-  // const favoriteRecipes = recipes.filter(r => favorites.includes(String(r.id)));
-  const favoriteRecipes = recipes.filter(recipe => favorites.includes(String(recipe._id)));
+  // Filtering only the recipes present in the favorites list
+  const favoriteRecipes = recipes.filter(recipe =>
+    favorites.includes(String(recipe._id))
+  );
 
-  // Toggle favorite: Removes the recipe from the list immediately in Favorites Page
-  const toggleFavorite = (recipeId) => {
+  // Toggling favorites (Add / Remove)
+  const toggleFavorite = async (recipeId) => {
     const targetId = String(recipeId);
-    const updatedFavorites = favorites.filter(id => id !== targetId);
-    setFavorites(updatedFavorites);
+    try {
+      const response = await axios.put(
+        'http://localhost:8080/api/recipes/favorite',
+        { recipeId: targetId },
+        { withCredentials: true }
+      );
 
-    // sessionStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
-    localStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
+      if (response.data.success) {
+        const updatedFavorites = response.data.favorites.map(String);
+        setFavorites(updatedFavorites);
+
+        // Updating the SessionStorage 
+        const savedUser = JSON.parse(sessionStorage.getItem('user'));
+        if (savedUser) {
+          savedUser.favorites = updatedFavorites;
+          sessionStorage.setItem('user', JSON.stringify(savedUser));
+        }
+        localStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
+      }
+    } catch (error) {
+      console.error("Toggle Favorite Error:", error);
+    }
   };
 
-  // Dispatch custom event to App.jsx to handle Editing globally
   const handleEditRecipe = (recipe) => {
-    setSelectedRecipe(null); // Close view modal
+    setSelectedRecipe(null);
     const event = new CustomEvent("openEditRecipeModal", { detail: recipe });
     window.dispatchEvent(event);
   };
 
-  // Simple local delete simulation or instructions
   const handleDeleteRecipe = (recipeId) => {
     if (window.confirm("Are you sure you want to delete this recipe?")) {
-      alert("Recipe Deleted! (Please refresh Home page to see updated list)");
+      alert("Recipe Deleted!");
       setSelectedRecipe(null);
     }
   };
@@ -58,7 +89,6 @@ function Favorites() {
       <Navbar />
 
       <div className="container py-5 flex-grow-1">
-        {/* Section Title */}
         <h2 className="fw-bold text-dark border-start border-primary border-4 ps-3 mb-4">
           ❤️ My Favorite Recipes
         </h2>
@@ -76,7 +106,7 @@ function Favorites() {
                 key={recipe._id}
                 recipe={recipe}
                 setSelectedRecipe={setSelectedRecipe}
-                isFavorite={true} // It is always true in Favorites page
+                isFavorite={true}
                 onFavoriteToggle={toggleFavorite}
               />
             ))}
@@ -84,7 +114,6 @@ function Favorites() {
         )}
       </div>
 
-      {/* Reusable Detail Modal */}
       <RecipeDetailModal
         selectedRecipe={selectedRecipe}
         onClose={() => setSelectedRecipe(null)}

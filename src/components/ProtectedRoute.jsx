@@ -45,11 +45,13 @@
 
 
 // Step:3
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Navigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 function ProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = Loading state
+  const alertShownRef = useRef(false); // 🛠️ To ensure the alert or toast appears only once
 
   useEffect(() => {
     // 🛡️ Check HttpOnly Cookie securely via backend API
@@ -79,8 +81,18 @@ function ProtectedRoute({ children }) {
     );
   }
 
+  // if (!isAuthenticated) {
+  //   alert("Please login first to access this page!");
+  //   return <Navigate to="/login" replace />;
+  // }
+
+
   if (!isAuthenticated) {
-    alert("Please login first to access this page!");
+    // 🛠️ Ensure the Toast notification is shown only once
+    if (!alertShownRef.current) {
+      alertShownRef.current = true;
+      toast.error("Please login first to access this page!", { toastId: "auth-alert" });
+    }
     return <Navigate to="/login" replace />;
   }
 

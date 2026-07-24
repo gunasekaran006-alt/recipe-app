@@ -3,61 +3,57 @@ import React from 'react';
 function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
   if (!selectedRecipe) return null;
 
+  const currentUser = JSON.parse(sessionStorage.getItem('user'));
+  const currentUserId = currentUser ? currentUser._id : null;
+
+  const creatorId = selectedRecipe.user?._id || selectedRecipe.user || selectedRecipe.createdBy?._id || selectedRecipe.createdBy;
+  const isOwner = creatorId && currentUserId && String(creatorId) === String(currentUserId);
+
   return (
     <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(5px)', zIndex: '1050' }}>
       <div className="modal-dialog modal-dialog-centered modal-xl">
-        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden', maxHeight: '92vh' }}>
-          {/* Close Button overlaying the layout */}
+        <div className="modal-content border-0 shadow-lg" style={{ borderRadius: '25px', overflow: 'hidden', maxHeight: '88vh', display: 'flex', flexDirection: 'column' }}>
+
+          {/* Close Button */}
           <div className="modal-header border-0 pb-0 position-absolute end-0 top-0" style={{ zIndex: '10' }}>
             <button className="btn-close bg-white rounded-circle p-2 m-2 shadow-sm" onClick={onClose}></button>
           </div>
-          
-          <div className="modal-body p-0">
+
+          <div className="modal-body p-0" style={{ overflowY: 'auto', scrollbarWidth: 'thin' }}>
             <div className="row g-0 align-items-stretch">
-              
-              {/* Left Side: Recipe Image Container */}
+
+              {/* Left Side: Image */}
               <div className="col-lg-7 d-flex">
-                <img 
-                  src={selectedRecipe.image} 
+                <img
+                  src={selectedRecipe.image}
                   alt={selectedRecipe.name}
-                  className="w-100" 
-                  style={{ 
-                    objectFit: 'cover', 
-                    objectPosition: 'center', 
-                    minHeight: '450px' 
-                  }} 
+                  className="w-100"
+                  style={{
+                    objectFit: 'cover',
+                    objectPosition: 'center',
+                    minHeight: '450px',
+                    height: '100%'
+                  }}
                 />
               </div>
-              
-              {/* Right Side: Recipe Details with Smooth Internal Scroll */}
-              <div 
-                className="col-lg-5 p-4 p-md-5 bg-white d-flex flex-column justify-content-between" 
-                style={{ 
-                  maxHeight: '92vh', 
-                  overflowY: 'auto',
-                  scrollbarWidth: 'thin'
-                }}
-              >
-                <div>
-                  {/* Category Tag */}
+
+              {/* Right Side: Details */}
+              <div className="col-lg-5 p-4 p-md-5 bg-white d-flex flex-column justify-content-between">
+                <div className="pb-3">
                   <span className="badge bg-primary-subtle text-primary rounded-pill px-3 py-2 mb-3 fs-8 fw-bold text-uppercase tracking-wider">
                     🏷️ {selectedRecipe.category}
                   </span>
-                  
-                  {/* Recipe Name */}
+
                   <h2 className="fw-extrabold text-dark mb-2 fs-2 lh-sm">{selectedRecipe.name}</h2>
-                  
-                  {/* Author and Reviews */}
+
                   <div className="d-flex align-items-center gap-2 mb-3">
                     <span className="text-muted small">By <strong className="text-dark">{selectedRecipe.author || 'Chef'}</strong></span>
                     <span className="text-muted">•</span>
                     <span className="text-warning small">⭐ {selectedRecipe.rating ? selectedRecipe.rating + '.0' : '0.0'} ({selectedRecipe.reviews || 0} reviews)</span>
                   </div>
 
-                  {/* Short Description */}
                   <p className="text-secondary small mb-4 lh-base">{selectedRecipe.description}</p>
 
-                  {/* Cook Time & Servings Balanced Cards */}
                   <div className="row g-2 mb-4">
                     <div className="col-6">
                       <div className="bg-light p-3 rounded-3 border border-light-subtle text-center">
@@ -73,7 +69,6 @@ function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
                     </div>
                   </div>
 
-                  {/* Nutrition Facts Section */}
                   <h6 className="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
                     🍏 Nutrition Facts <small className="text-muted fw-normal">(Per Serving)</small>
                   </h6>
@@ -92,7 +87,7 @@ function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
                     </div>
                     <div className="col-3">
                       <div className="p-2 rounded-3 text-center" style={{ backgroundColor: '#fefce8', border: '1px solid #fef08a' }}>
-                        <small className="text-warning-dark d-block fw-bold" style={{ fontSize: '10px', color: '#856404' }}>CARBS</small>
+                        <small className="d-block fw-bold" style={{ fontSize: '10px', color: '#856404' }}>CARBS</small>
                         <strong style={{ fontSize: '13px', color: '#856404' }}>{selectedRecipe.nutrition ? selectedRecipe.nutrition.carbs : '35g'}</strong>
                       </div>
                     </div>
@@ -104,7 +99,7 @@ function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
                     </div>
                   </div>
 
-                  {/* Ingredients Section */}
+                  {/* Ingredients */}
                   <h6 className="fw-bold text-dark mb-3">🛒 Ingredients:</h6>
                   <ul className="list-unstyled mb-4">
                     {selectedRecipe.ingredients && Array.isArray(selectedRecipe.ingredients) ? (
@@ -113,12 +108,14 @@ function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
                           <span className="text-success fw-bold">✔️</span> {ing}
                         </li>
                       ))
+                    ) : selectedRecipe.ingredients ? (
+                      <li className="text-secondary small">{selectedRecipe.ingredients}</li>
                     ) : (
                       <li className="text-muted small">No ingredients listed.</li>
                     )}
                   </ul>
 
-                  {/* Instructions Box */}
+                  {/* Instructions */}
                   <h6 className="fw-bold text-dark mb-3">🍳 Step-by-Step Instructions:</h6>
                   <div className="bg-light p-3 rounded-3 border-start border-primary border-4 mb-4">
                     <p className="text-secondary small lh-relaxed mb-0" style={{ whiteSpace: 'pre-line' }}>
@@ -126,26 +123,36 @@ function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
                     </p>
                   </div>
 
-                  {/* Edit & Delete Action Buttons */}
-                  <div className="d-flex gap-2 pt-3 border-top mt-4">
-                    <button 
-                      className="btn btn-outline-secondary flex-grow-1 rounded-pill fw-bold py-2 btn-sm"
-                      onClick={() => onEdit(selectedRecipe)}
-                    >
-                      ✏️ Edit Recipe
-                    </button>
-                    <button 
-                      className="btn btn-danger flex-grow-1 rounded-pill fw-bold py-2 btn-sm"
-                      onClick={() => onDelete(selectedRecipe._id)}
-                    >
-                      🗑️ Delete Recipe
-                    </button>
-                  </div>
+                  {/* Edit & Delete Buttons */}
+                  {isOwner && (
+                    <div className="d-flex gap-2 pt-3 border-top mt-4">
+                      <button
+                        className="btn btn-outline-secondary flex-grow-1 rounded-pill fw-bold py-2 btn-sm"
+                        onClick={() => {
+                          onClose();
+                          onEdit(selectedRecipe);
+                        }}
+                      >
+                        ✏️ Edit Recipe
+                      </button>
+                      <button
+                        className="btn btn-danger flex-grow-1 rounded-pill fw-bold py-2 btn-sm"
+                        onClick={() => {
+                          onClose();
+                          onDelete(selectedRecipe._id);
+                        }}
+                      >
+                        🗑️ Delete Recipe
+                      </button>
+                    </div>
+                  )}
 
                 </div>
               </div>
+
             </div>
           </div>
+
         </div>
       </div>
     </div>

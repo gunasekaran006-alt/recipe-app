@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
   const emptyFormState = {
@@ -23,6 +24,7 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
   const [newRecipe, setNewRecipe] = useState(emptyFormState);
   const [isAILoading, setIsAILoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (editRecipe) {
@@ -153,27 +155,70 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  // // type:1
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
 
-    // 1. Converting ingredients into an array
+  //   // 1. Converting ingredients into an array
+  //   const ingredientsArray = newRecipe.ingredients
+  //     .split(',')
+  //     .map(ing => ing.trim())
+  //     .filter(ing => ing !== "");
+
+  //   // 2. Retrieving the logged-in username from SessionStorage (Author Fix)
+  //   const storedUser = JSON.parse(sessionStorage.getItem('user'));
+  //   const authorName = storedUser ? storedUser.name : "Unknown Chef";
+
+  //   // 3. Complete data object to be sent to the backend
+  //   const recipeToAdd = {
+  //     ...newRecipe,
+  //     // We send the old _id when editing. Nothing new is required when adding (MongoDB handles it).
+  //     id: editRecipe ? editRecipe._id : undefined,
+  //     ingredients: ingredientsArray,
+  //     // author: authorName, // 🆕 Name of the logged-in user!
+  //     author: storedUser ? storedUser.name : "Unknown Chef",
+  //     nutrition: {
+  //       calories: newRecipe.calories || "N/A",
+  //       protein: newRecipe.protein || "N/A",
+  //       carbs: newRecipe.carbs || "N/A",
+  //       fat: newRecipe.fat || "N/A"
+  //     }
+  //   };
+  //   // // Sending to the API logic in Home.jsx
+  //   // onAddRecipe(recipeToAdd);
+
+  //   // At the end of the handleSubmit function:
+  //   const token = sessionStorage.getItem("token");
+
+  //   // 🆕 Stop immediately if there is no token
+  //   if (!token) {
+  //     toast.error("Session expired! Please login again.");
+  //     return;
+  //   }
+
+  //   onAddRecipe(recipeToAdd, token); // 🆕 Send the token to App.js
+
+  // };
+
+
+
+  // type: 2
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+
     const ingredientsArray = newRecipe.ingredients
       .split(',')
       .map(ing => ing.trim())
       .filter(ing => ing !== "");
 
-    // 2. Retrieving the logged-in username from SessionStorage (Author Fix)
     const storedUser = JSON.parse(sessionStorage.getItem('user'));
-    const authorName = storedUser ? storedUser.name : "Unknown Chef";
 
-    // 3. Complete data object to be sent to the backend
     const recipeToAdd = {
       ...newRecipe,
-      // We send the old _id when editing. Nothing new is required when adding (MongoDB handles it).
-      id: editRecipe ? editRecipe._id : undefined,
       ingredients: ingredientsArray,
-      // author: authorName, // 🆕 Name of the logged-in user!
-      author: storedUser ? storedUser.name : "Unknown Chef",
+      author: storedUser?.name || storedUser?.email?.split('@')[0] || "Chef",
       nutrition: {
         calories: newRecipe.calories || "N/A",
         protein: newRecipe.protein || "N/A",
@@ -181,21 +226,39 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
         fat: newRecipe.fat || "N/A"
       }
     };
-    // // Sending to the API logic in Home.jsx
-    // onAddRecipe(recipeToAdd);
 
-    // At the end of the handleSubmit function:
-    const token = sessionStorage.getItem("token");
+    try {
+      const url = editRecipe
+        ? `http://localhost:8080/api/recipes/${editRecipe._id}`
+        : 'http://localhost:8080/api/recipes/';
 
-    // 🆕 Stop immediately if there is no token
-    if (!token) {
-      toast.error("Session expired! Please login again.");
-      return;
+      const method = editRecipe ? 'put' : 'post';
+
+      const response = await axios[method](url, recipeToAdd, {
+        withCredentials: true
+      });
+
+      toast.success(response.data.message || "Recipe saved successfully! ✨");
+
+      // 🛠️ Closing the modal and refreshing the page
+      onClose();
+      // window.location.reload(); // Reloading ensures the updated list is correctly fetched from the database
+
+      // 🛠️ Refreshing the page after 1.5 seconds (this helps the notification display correctly)
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
+
+
+    } catch (error) {
+      console.error("Error saving recipe:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "Session expired or error occurred. Please login again.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    onAddRecipe(recipeToAdd, token); // 🆕 Send the token to App.js
-
   };
+
+
 
   if (!show) return null;
 
@@ -209,7 +272,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
             </h4>
             <button className="btn-close" onClick={onClose}></button>
           </div>
-          <div className="modal-body p-4">
+          {/* 🛠️ added max-height and overflowY for scrolling */}
+          <div className="modal-body p-4" style={{ maxHeight: '75vh', overflowY: 'auto' }}>
             <form onSubmit={handleSubmit}>
 
               <div className="row mb-3">
@@ -315,8 +379,8 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
 
               <div className="text-end mt-4">
                 <button type="button" className="btn btn-outline-secondary rounded-pill px-4 me-2" onClick={onClose}>Cancel</button>
-                <button type="submit" className="btn btn-primary rounded-pill px-4 shadow-sm">
-                  {editRecipe ? "Update Recipe" : "Add Recipe"}
+                <button type="submit" className="btn btn-primary rounded-pill px-4 shadow-sm" disabled={isSubmitting}>
+                  {isSubmitting ? "Saving..." : (editRecipe ? "Update Recipe" : "Add Recipe")}
                 </button>
               </div>
             </form>

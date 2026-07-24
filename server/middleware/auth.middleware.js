@@ -32,20 +32,21 @@
 // Type:2
 const jwt = require("jsonwebtoken");
 
-module.exports = (req, res, next) => {
+const authMiddleware = (req, res, next) => {
     try {
-        // 🆕 Directly grab the token from the HttpOnly Cookie
         const token = req.cookies.token;
 
         if (!token) {
             return res.status(401).json({ message: "Access Denied. No Token Provided!" });
         }
 
-        // Verify the token
         const verified = jwt.verify(token, process.env.JWT_SECRET);
-        req.userId = verified.id; // Add user ID to the request
+        req.userId = verified.id;
         next();
     } catch (err) {
         return res.status(401).json({ message: "Invalid or Expired Token!" });
     }
 };
+
+module.exports = authMiddleware;
+

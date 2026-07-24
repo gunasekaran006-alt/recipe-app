@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import axios from 'axios'; // 👈 1. Axios imported
 
 function Navbar() {
   const navigate = useNavigate();
@@ -13,23 +14,23 @@ function Navbar() {
     setShowLogoutModal(true);
   };
 
-  // Actual logout logic when clicking "Yes, Logout"
-  const confirmLogout = () => {
+  // 🛠️ 2. Actual logout logic with Backend Cookie clearing + Frontend cleanup
+  const confirmLogout = async () => {
+    try {
+      // Call API to clear the HttpOnly cookie on the backend
+      await axios.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true });
 
-    // 1. Temporarily store the favorites in a variable
-    // const savedFavorites = sessionStorage.getItem('recipe_favorites'); ---> Unused Variable
+      // Clear Session Storage and Local Storage
+      sessionStorage.removeItem("user");
+      // sessionStorage.clear(); can be used if needed (no need to worry about favorites as they are in the database)
 
-    // 2. Instead of clearing everything, remove only the token
-    sessionStorage.removeItem("token");
-    sessionStorage.removeItem("user");
-
-    // 3. If favorites exist, keep them as they are
-    // (It is best to remove only what needs to be deleted)
-
-    // sessionStorage.clear(); 
-    setShowLogoutModal(false);
-    toast.info("Logged out successfully! 👋");
-    navigate('/login');
+      setShowLogoutModal(false);
+      toast.info("Logged out successfully! 👋");
+      navigate('/login');
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast.error("Logout failed. Please try again.");
+    }
   };
 
   return (
@@ -58,6 +59,12 @@ function Navbar() {
                 </Link>
               </li>
 
+              <li className="nav-item">
+                <Link className="nav-link fw-semibold px-3 d-flex align-items-center gap-2" to="/my-recipes">
+                  📖 My Recipes
+                </Link>
+              </li>
+
               <li className="nav-item dropdown">
                 <a className="nav-link fw-semibold px-3 dropdown-toggle d-flex align-items-center gap-2" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                   👤 Profile
@@ -66,7 +73,6 @@ function Navbar() {
                   <li><Link className="dropdown-item py-2" to="/profile">My Account</Link></li>
                   <li><Link className="dropdown-item py-2" to="/settings">Settings</Link></li>
                   <li><hr className="dropdown-divider" /></li>
-                  {/* Changed from window.confirm to custom modal trigger */}
                   <li><button className="dropdown-item py-2 text-danger fw-bold" onClick={handleLogoutClick}>Logout</button></li>
                 </ul>
               </li>

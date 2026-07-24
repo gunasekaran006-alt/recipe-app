@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import MyRecipes from './pages/MyRecipes';
 
 import Signup from './pages/Signup';
 import Login from './pages/Login';
@@ -127,10 +127,9 @@ function App() {
 
       // 🆕 The modal should be closed only after success.
       setShowAddModal(false);
-      setTimeout(() => {
-        window.location.reload();
-        // }, 1500);
-      }, 2000);
+      setEditRecipe(null);
+      // Dispatching an event to re-fetch only the home page data
+      window.dispatchEvent(new CustomEvent("recipeSavedSuccessfully"));
 
     } catch (error) {
       console.error("Save Error Details:", error);
@@ -187,6 +186,7 @@ function App() {
             <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/login" />} />
+            <Route path="/my-recipes" element={<ProtectedRoute><MyRecipes /></ProtectedRoute>} />
           </Routes>
         </div>
         <Footer />
@@ -195,7 +195,6 @@ function App() {
       <AddRecipeModal
         show={showAddModal}
         onClose={() => { setShowAddModal(false); setEditRecipe(null); }}
-        onAddRecipe={handleSaveRecipe}
         editRecipe={editRecipe}
       />
     </BrowserRouter>

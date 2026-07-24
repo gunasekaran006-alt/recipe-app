@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
 
-function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, onDelete }) {
-  // Logic to render stars based on recipe.rating dynamically
-
+function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, onDelete, onEdit }) {
   const [isLoading, setIsLoading] = useState(false);
+
+  // 1. Get the logged-in user's ID
+  const currentUser = JSON.parse(sessionStorage.getItem('user'));
+  const currentUserId = currentUser ? currentUser._id : null;
+
+  // 🛠️ Crucial: Check if the recipe creator and the logged-in user are the same
+  // Note: In the DB, recipe.createdBy could be an object or a string, so converting it to a string is safer. 
+  const creatorId = recipe.user?._id || recipe.user || recipe.createdBy?._id || recipe.createdBy;
+  const isOwner = creatorId && currentUserId && String(creatorId) === String(currentUserId);
+
 
   const handleDelete = async () => {
     setIsLoading(true);
     await onDelete(recipe._id);
     setIsLoading(false);
   };
-
 
   const renderStars = (rating) => {
     const stars = [];
@@ -38,14 +45,17 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, o
           <img src={recipe.image} className="card-img-top" style={{ height: '220px', objectFit: 'cover' }} alt={recipe.name} />
 
           <div className="position-absolute top-0 end-0 m-3 d-flex gap-2" style={{ zIndex: '10' }}>
-            {/* Heart Toggle Button */}
             <button
               className="btn btn-sm btn-light rounded-circle shadow-sm opacity-90 d-flex align-items-center justify-content-center"
               style={{ width: '35px', height: '35px', border: 'none' }}
               onClick={(e) => {
-                e.stopPropagation(); // Prevents opening the modal when clicking the heart icon
-                // onFavoriteToggle(recipe.id);
-                onFavoriteToggle(recipe._id);
+                e.stopPropagation();
+                const activeId = recipe._id || recipe.id;
+                if (activeId) {
+                  onFavoriteToggle(activeId);
+                } else {
+                  console.error("Recipe ID is missing!", recipe);
+                }
               }}
             >
               {isFavorite ? '❤️' : '🤍'}
@@ -69,12 +79,12 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, o
             {/* Recipe Name */}
             <h5 className="card-title fw-bold my-1 text-dark" style={{ fontSize: '1.2rem' }}>{recipe.name}</h5>
 
-            {/* Recipe Description from DB */}
+            {/* Recipe Description */}
             <p className="card-text text-muted small mb-3 text-truncate-2" style={{ display: '-webkit-box', WebkitLineClamp: '2', WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
               {recipe.description}
             </p>
 
-            {/* Time & Servings - Directly from DB */}
+            {/* Time & Servings */}
             <div className="d-flex gap-4 text-muted mb-3" style={{ fontSize: '13px' }}>
               <span>⏱️ {recipe.time || 'N/A'}</span>
               <span>👥 {recipe.servings || 'N/A'}</span>
@@ -90,7 +100,6 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, o
               <span className="text-muted fw-semibold" style={{ fontSize: '13px' }}>{recipe.author || 'Anonymous'}</span>
             </div>
 
-            {/* Exact rating & reviews count from DB */}
             <div className="small">
               {renderStars(recipe.rating)}
               <span className="text-muted ms-1" style={{ fontSize: '12px' }}>
@@ -99,22 +108,10 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, o
             </div>
           </div>
 
-          {/* <button className="btn btn-primary w-100 mt-3 rounded-pill fw-bold shadow-sm" onClick={() => setSelectedRecipe(recipe)}>
-            View Details
-          </button> */}
-
-          <div className="d-flex gap-2 mt-3">
+          {/* 🛠️ Action Buttons */}
+          <div className="mt-3">
             <button className="btn btn-primary w-100 rounded-pill fw-bold" onClick={() => setSelectedRecipe(recipe)}>
               View Details
-            </button>
-
-            {/* Add only this button */}
-            <button
-              className="btn btn-outline-danger rounded-pill fw-bold"
-              disabled={isLoading}
-              onClick={handleDelete}
-            >
-              {isLoading ? "..." : "🗑️"}
             </button>
           </div>
 

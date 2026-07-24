@@ -114,6 +114,7 @@
 
 
 // STAGE:3
+const User = require("../models/user.model");
 const Recipe = require("../models/recipe.model");
 
 // 🆕 Title Case Helper Function (Magic that capitalizes the first letter of every word!)
@@ -231,21 +232,25 @@ exports.updateRecipe = async (req, res) => {
 //     }
 // };
 // stage:2 // ownership checked here!
+// 4. DELETE API - Remove a recipe from MongoDB
 exports.deleteRecipe = async (req, res) => {
     try {
-        const id = req.params.id;
+        const recipeId = req.params.id;
+        const recipe = await Recipe.findById(recipeId);
 
-        // 🆕 OWNERSHIP CHECK (this is important!) 
-        const recipe = await Recipe.findOne({ _id: id, user: req.userId });
         if (!recipe) {
-            return res.status(401).json({ message: "Unauthorized: You don't own this recipe" });
+            return res.status(404).json({ message: "Recipe not found!" });
         }
 
-        // Now safe to delete 
-        await Recipe.findByIdAndDelete(id);
-        res.status(200).json({ message: "Recipe Deleted Successfully! 🗑️" });
+        // 🛠️ Replaced 'recipe.createdBy' with 'recipe.user' 
+        if (String(recipe.user) !== String(req.userId)) {
+            return res.status(403).json({ message: "Unauthorized: You can only delete your own recipes! ❌" });
+        }
+
+        await Recipe.findByIdAndDelete(recipeId);
+        res.status(200).json({ message: "Recipe deleted successfully! 🗑️" });
     } catch (error) {
-        res.status(500).json({ message: "Error deleting recipe", error: error.message });
+        res.status(500).json({ message: "Server Error", error: error.message });
     }
 };
 
@@ -271,5 +276,69 @@ exports.getRecipeStats = async (req, res) => {
         res.status(200).json({ message: "Recipe Stats Fetched! 📊", data: stats });
     } catch (error) {
         res.status(500).json({ message: "Error fetching stats", error: error.message });
+    }
+};
+
+
+
+
+
+
+exports.toggleFavorite = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const { recipeId } = req.body;
+
+        if (!recipeId) {
+            return res.status(400).json({ message: "Recipe ID is required" });
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        // Create if not favorites 
+        if (!user.favorites) {
+            user.favorites = [];
+        }
+
+        // Convert to string and check if it already exists 
+        const exists = user.favorites.some(id => id && id.toString() === recipeId.toString());
+
+        let updatedFavorites;
+        if (exists) {
+            // deletion 
+            updatedFavorites = user.favorites.filter(id => id && id.toString() !== recipeId.toString());
+        } else {
+            // Adding 
+            updatedFavorites = [...user.favorites, recipeId];
+        }
+
+        // Safely update and save 
+        user.favorites = updatedFavorites;
+        await user.save();
+
+        res.status(200).json({
+            success: true,
+            favorites: user.favorites,
+            message: exists ? "Removed from favorites" : "Added to favorites"
+        });
+    } catch (error) {
+        console.error("Toggle Favorite Server Error:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+
+// 6. GET API - Get logged-in user's recipes
+exports.getMyRecipes = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const recipes = await Recipe.find({ user: userId });
+        res.status(200).json(recipes);
+    } catch (error) {
+        console.error("Error fetching user recipes:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };

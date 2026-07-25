@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Navbar from '../components/Navbar'; // 👈 1. Import Navbar
+import Navbar from '../components/Navbar';
 import RecipeCard from '../components/RecipeCard';
-import RecipeDetailModal from '../components/RecipeDetailModal'; // 👈 2. Import the Modal
+import RecipeDetailModal from '../components/RecipeDetailModal';
 import { toast } from 'react-toastify';
 
 const MyRecipes = () => {
     const [myRecipes, setMyRecipes] = useState([]);
-    const [selectedRecipe, setSelectedRecipe] = useState(); // 👈 The perfect method you found 
+    const [selectedRecipe, setSelectedRecipe] = useState();
+
+    // 🛠️ Confirmation Modal States
+    const [recipeToDelete, setRecipeToDelete] = useState(null);
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     useEffect(() => {
         const fetchMyRecipes = async () => {
@@ -27,13 +31,25 @@ const MyRecipes = () => {
         fetchMyRecipes();
     }, []);
 
-    const handleDelete = async (recipeId) => {
-        try {
-            await axios.delete(`http://localhost:8080/api/recipes/${recipeId}`, { withCredentials: true });
-            setMyRecipes(myRecipes.filter(r => r._id !== recipeId));
-            toast.success("Recipe deleted successfully! 🗑️");
-        } catch (error) {
-            toast.error("Failed to delete recipe");
+    // 🛠️ Trigger Confirmation Modal instead of direct delete
+    const handleDeleteClick = (recipeId) => {
+        setRecipeToDelete(recipeId);
+        setShowConfirmModal(true);
+    };
+
+    // 🛠️ Actual Delete execution after confirmation
+    const confirmAndExecuteDelete = async () => {
+        if (recipeToDelete) {
+            try {
+                await axios.delete(`http://localhost:8080/api/recipes/${recipeToDelete}`, { withCredentials: true });
+                setMyRecipes(myRecipes.filter(r => r._id !== recipeToDelete));
+                toast.success("Recipe deleted successfully! 🗑️");
+            } catch (error) {
+                toast.error("Failed to delete recipe");
+            } finally {
+                setShowConfirmModal(false);
+                setRecipeToDelete(null);
+            }
         }
     };
 
@@ -44,9 +60,7 @@ const MyRecipes = () => {
     };
 
     return (
-        // 🛠️ FIX: Giving min-vh-100 and flex-column like other pages 
-        <div className="bg-light min-vh-100 d-flex flex-column">
-            {/* 👈 3. Navbar must be linked here */}
+        <div className="bg-light min-vh-100 d-flex flex-column position-relative">
             <Navbar />
 
             <div className="container py-5 flex-grow-1">
@@ -60,7 +74,8 @@ const MyRecipes = () => {
                                 key={recipe._id}
                                 recipe={recipe}
                                 setSelectedRecipe={setSelectedRecipe}
-                                onDelete={handleDelete}
+                                onDelete={handleDeleteClick} // 🛠️ Connected to confirmation modal
+                                onEdit={handleEditRecipe}     // 🛠️ Edit enabled for My Recipes
                                 isFavorite={false}
                             />
                         ))
@@ -79,8 +94,31 @@ const MyRecipes = () => {
                 selectedRecipe={selectedRecipe}
                 onClose={() => setSelectedRecipe(undefined)}
                 onEdit={handleEditRecipe}
-                onDelete={handleDelete}
+                onDelete={handleDeleteClick}
             />
+
+            {/* 🛠️ Confirmation Modal Popup */}
+            {showConfirmModal && (
+                <div className="modal d-block" style={{ backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 1100 }}>
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content border-0 rounded-4 shadow-lg">
+                            <div className="modal-body p-4 text-center">
+                                <div className="display-4 text-danger mb-3">⚠️</div>
+                                <h4 className="fw-bold text-dark">Are you sure?</h4>
+                                <p className="text-muted">Do you really want to delete this recipe?</p>
+                                <div className="d-flex justify-content-center gap-3 mt-4">
+                                    <button className="btn btn-light px-4 fw-bold border" onClick={() => setShowConfirmModal(false)}>
+                                        Cancel
+                                    </button>
+                                    <button className="btn btn-danger px-4 fw-bold shadow-sm" onClick={confirmAndExecuteDelete}>
+                                        Yes, Delete It
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

@@ -123,8 +123,8 @@ function RecipeDetailModal({ selectedRecipe, onClose, onEdit, onDelete }) {
                     </p>
                   </div>
 
-                  {/* Edit & Delete Buttons */}
-                  {isOwner && (
+                  {/* 🛠️ Edit & Delete Action Buttons (Visible only if user is owner AND onEdit/onDelete functions are provided) */}
+                  {isOwner && onEdit && onDelete && window.location.pathname.includes('/my-recipes') && (
                     <div className="d-flex gap-2 pt-3 border-top mt-4">
                       <button
                         className="btn btn-outline-secondary flex-grow-1 rounded-pill fw-bold py-2 btn-sm"

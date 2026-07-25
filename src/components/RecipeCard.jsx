@@ -113,6 +113,22 @@ function RecipeCard({ recipe, setSelectedRecipe, isFavorite, onFavoriteToggle, o
             <button className="btn btn-primary w-100 rounded-pill fw-bold" onClick={() => setSelectedRecipe(recipe)}>
               View Details
             </button>
+
+            {/* Edit/Delete buttons are shown only on the 'My Recipes' page or if the user is the owner */}
+            {isOwner && onEdit && onDelete && (
+              <div className="d-flex gap-2 mt-2">
+                <button className="btn btn-outline-primary btn-sm w-50 rounded-pill fw-bold" onClick={() => onEdit(recipe)}>
+                  Edit ✏️
+                </button>
+                <button
+                  className="btn btn-outline-danger btn-sm w-50 rounded-pill fw-bold"
+                  disabled={isLoading}
+                  onClick={handleDelete}
+                >
+                  {isLoading ? "Deleting..." : "Delete 🗑️"}
+                </button>
+              </div>
+            )}
           </div>
 
         </div>

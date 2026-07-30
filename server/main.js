@@ -11,6 +11,8 @@ const passwordRoutes = require("./routes/passwordRoutes");
 // Initialize Express App
 const app = express();
 
+// 🆕 Add this line to trust Render's proxy
+app.set('trust proxy', 1);
 
 // dns.setServers(["1.1.1.1", "8.8.8.8"]);
 if (process.env.NODE_ENV === "development") {

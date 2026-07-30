@@ -5,11 +5,14 @@ import { toast } from 'react-toastify';
 function ProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
   const alertShownRef = useRef(false);
-  const location = useLocation(); // 🆕 To determine the current page
+  const location = useLocation();
 
   useEffect(() => {
+    // 🆕 Dynamic API URL usage for Production & Local development
+    const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
     // 🛡️ Check HttpOnly Cookie securely via backend API
-    fetch('http://localhost:8080/api/auth/me', {
+    fetch(`${API_BASE}/auth/me`, {
       method: 'GET',
       credentials: 'include'
     })
@@ -25,8 +28,6 @@ function ProtectedRoute({ children }) {
       });
   }, []);
 
-  // 🆕 If we are currently on the login or sign-up page,
-  // we can skip showing an immediate alert even if a 401 error occurs. 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/signup' || location.pathname === '/forgot-password' || location.pathname === '/reset-password';
 
   if (isAuthenticated === null) {

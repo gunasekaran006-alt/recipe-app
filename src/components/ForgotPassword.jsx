@@ -13,19 +13,18 @@ const ForgotPassword = () => {
         setLoading(true);
 
         try {
-            // 1. Backend API Call 
-            const response = await axios.post('http://localhost:8080/api/auth/forgot-password', { email });
+            // 🆕 Dynamic API URL usage
+            const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
 
-            // 2. Success Toast Notification 
-            toast.success(response.data.message || "ODP sent to your email! ✉️");
+            const response = await axios.post(`${API_BASE}/auth/forgot-password`, { email });
 
-            // 3. Automatically redirect to Reset Password page after 2 seconds 
+            toast.success(response.data.message || "OTP sent to your email! ✉️");
+
             setTimeout(() => {
                 navigate('/reset-password');
             }, 2000);
 
         } catch (err) {
-            // 4. Error Toast Notification 
             toast.error(err.response?.data?.message || 'Something went wrong. Try again.');
         } finally {
             setLoading(false);

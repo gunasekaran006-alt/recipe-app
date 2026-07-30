@@ -35,9 +35,11 @@ dbConnection(); // Connecting!
 app.use(express.json()); // To parse JSON bodies
 
 
+
 const allowedOrigins = [
-    "http://localhost:5173",
-    process.env.FRONTEND_URL // Add this to the .env file after deployment
+"http://localhost:5173",
+"https://interactive-recipe-sharing-platform.vercel.app", // 👈 Live URL
+process.env.FRONTEND_URL // Render environment variable
 ];
 
 

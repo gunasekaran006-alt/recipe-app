@@ -31,11 +31,26 @@ dbConnection(); // Connecting!
 
 // Middlewares configuration
 app.use(express.json()); // To parse JSON bodies
+
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    process.env.FRONTEND_URL // Add this to the .env file after deployment
+];
+
+
 // To allow cross-origin requests from React
 app.use(cors({
-    origin: "http://localhost:5173", 
-    credentials: true // 👈 This is necessary to accept cookies
-})); 
+    origin: function (origin, callback) {
+        // Requests from Postman or mobile apps won't have an origin; allow them
+        if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== "production") {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true // 👈 Crucial for accepting cookies
+}));
 app.use(cookieParser());
 
 // Rate Limiter Configuration

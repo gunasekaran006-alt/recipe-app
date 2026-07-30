@@ -47,8 +47,8 @@ exports.loginApi = async (req, res) => {
         // 🛠️ The same options provided during login must also be provided during logout
         res.cookie("token", token, {
             httpOnly: true,
-            secure: false, // Set this to false when testing on localhost
-            sameSite: "lax", // 'lax' is safest for local testing
+            secure: process.env.NODE_ENV === "production", // true in production
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "none" is required for cross-site
             maxAge: 24 * 60 * 60 * 1000 // 1 Day
         }).status(200).json({
             message: "Welcome back!",
@@ -66,8 +66,8 @@ exports.logoutApi = async (req, res) => {
         // 🛠️ The same options (secure & sameSite) used during login must be provided here as well
         res.clearCookie("token", {
             httpOnly: true,
-            secure: false,
-            sameSite: "lax"
+            secure: process.env.NODE_ENV === "production", // Will be true in production
+            sameSite: process.env.NODE_ENV === "production" ? "none" : "lax", // "none" is required for cross-site
         });
 
         res.status(200).json({ message: "Logged out successfully! 🚪" });

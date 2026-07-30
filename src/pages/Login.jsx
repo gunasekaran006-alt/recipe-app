@@ -29,32 +29,11 @@ function Login() {
 
 
 
-
-    // ==========================================
-
-    //   try {
-    //     const res = await fetch('http://localhost:3000/users');
-    //     const users = await res.json();
-
-    //     const user = users.find(u => u.email === login.email && u.password === login.password);
-
-    //     if (user) {
-    //       toast.success(`Welcome back, ${user.name || 'Chef'}! 👩‍🍳`); 
-    //       sessionStorage.setItem("isLoggedIn", "true");
-    //       sessionStorage.setItem("user", JSON.stringify(user));
-    //       navigate('/home');
-    //     } else {
-    //       toast.error("Invalid email or password! ❌");
-    //     }
-    //   } catch (error) {
-    //     toast.error("Server error. Please ensure json-server is running.");
-    //   }
-    // };
-
-
     try {
-      // 🆕 Our new Node.js backend API link!
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      // 🆕 Dynamic API URL usage for Production & Local development
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+      const response = await fetch(`${API_BASE}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: login.email, password: login.password }),
@@ -65,11 +44,7 @@ function Login() {
 
       if (response.ok && data.user) {
         toast.success(`Welcome back, ${data.user.name || 'Chef'}! 👩‍🍳`);
-        // sessionStorage.setItem("isLoggedIn", "true");
-        // sessionStorage.setItem("user", JSON.stringify(data.user));
-
-        // (Save only the name)
-        // sessionStorage.setItem("userName", data.user.name);
+        
         sessionStorage.setItem("user", JSON.stringify(data.user));
 
         navigate('/home');
@@ -89,8 +64,7 @@ function Login() {
         <form onSubmit={handleLogin}>
           <div className="mb-3">
             <label className="form-label">Email Address</label>
-            {/* <input type="email" className="form-control form-control-lg" placeholder="example@mail.com" onChange={(e) => setLogin({...login, email: e.target.value})} required /> */}
-            {/* 🆕 autoComplete="username" added */}
+            
             <input type="email" className="form-control form-control-lg" placeholder="example@mail.com" autoComplete="username" onChange={(e) => setLogin({ ...login, email: e.target.value })} required />
           </div>
           <div className="mb-3">

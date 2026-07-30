@@ -35,8 +35,10 @@ function Signup() {
     // ==========================================
 
     try {
-      // const response = await fetch('http://localhost:3000/users', {
-      const response = await fetch('http://localhost:8080/api/auth/register', {
+      // 🆕 Dynamic API URL usage
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+      const response = await fetch(`${API_BASE}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -48,11 +50,11 @@ function Signup() {
         toast.success("Account created successfully in MongoDB! 🎉");
         navigate('/login');
       } else {
-        // toast.error("Failed to create account.");
+
         toast.error(result.message || "Failed to create account.");
       }
     } catch (error) {
-      // toast.error("Server error. Please ensure json-server is running.");
+
       toast.error("Server error. Please ensure Node.js backend is running.");
     }
   };

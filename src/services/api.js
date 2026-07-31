@@ -1,7 +1,10 @@
 import axios from 'axios';
 
 // 🟢 Dynamic Base URL for both Localhost and Production
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+// const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
+// 🛑 Direct Hardcoded Render Production URL to bypass any Vercel environment variable issues
+const API_BASE_URL = 'https://interactive-recipe-sharing-platform.onrender.com/api';
 
 const API = axios.create({
     baseURL: API_BASE_URL,

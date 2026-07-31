@@ -1,18 +1,21 @@
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// 🛠️ Force Node.js to use IPv4 to avoid Render's ENETUNREACH network error
+dns.setDefaultResultOrder('ipv4first');
 
 const sendEmail = async (options) => {
-    // 1. Create transporter with secure timeout handling for Render
     const transporter = nodemailer.createTransport({
         service: 'gmail',
         host: 'smtp.gmail.com',
         port: 465,
-        secure: true, // true for 465, false for other ports
+        secure: true,
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
         },
         tls: {
-            rejectUnauthorized: false // 👈 This bypasses cloud network restrictions
+            rejectUnauthorized: false
         }
     }); 
 

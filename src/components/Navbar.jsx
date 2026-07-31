@@ -17,8 +17,8 @@ function Navbar() {
   // 🛠️ 2. Actual logout logic with Backend Cookie clearing + Frontend cleanup
   const confirmLogout = async () => {
     try {
-      // Call API to clear the HttpOnly cookie on the backend
-      await axios.post('http://localhost:8080/api/auth/logout', {}, { withCredentials: true });
+      const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+      await axios.post(`${API_BASE}/auth/logout`, {}, { withCredentials: true });
 
       // Clear Session Storage and Local Storage
       sessionStorage.removeItem("user");

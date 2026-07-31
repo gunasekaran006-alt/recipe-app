@@ -37,23 +37,23 @@ app.use(express.json()); // To parse JSON bodies
 
 
 const allowedOrigins = [
-"http://localhost:5173",
-"https://interactive-recipe-sharing-platform.vercel.app", // 👈 Live URL
-process.env.FRONTEND_URL // Render environment variable
+    "http://localhost:5173",
+    "https://interactive-recipe-sharing-platform.vercel.app", // 👈 Live URL
+    process.env.FRONTEND_URL // Render environment variable
 ];
 
 
 // To allow cross-origin requests from React
 app.use(cors({
     origin: function (origin, callback) {
-        // Requests from Postman or mobile apps won't have an origin; allow them
-        if (!origin || allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== "production") {
+        // Allow requests with no origin (like Postman or mobile apps) or any Vercel/Localhost domain
+        if (!origin || origin.includes("vercel.app") || origin.includes("localhost") || origin === process.env.FRONTEND_URL) {
             callback(null, true);
         } else {
             callback(new Error("Not allowed by CORS"));
         }
     },
-    credentials: true // 👈 Crucial for accepting cookies
+    credentials: true
 }));
 app.use(cookieParser());
 

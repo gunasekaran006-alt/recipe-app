@@ -20,8 +20,8 @@ function Favorites() {
         // 🛠️ 2. Use API instance (No localhost hardcoding)
         const profileRes = await API.get('/auth/me');
 
-        if (profileRes.user && profileRes.user.favorites) {
-          const dbFavorites = profileRes.user.favorites.map(String);
+        if (profileRes.data.user && profileRes.data.user.favorites) {
+          const dbFavorites = profileRes.data.user.favorites.map(String);
           setFavorites(dbFavorites);
 
           const currentUser = JSON.parse(sessionStorage.getItem('user')) || {};
@@ -46,8 +46,8 @@ function Favorites() {
       // 🛠️ 3. Use API instance for put request
       const response = await API.put('/recipes/favorite', { recipeId: targetId });
 
-      if (response.success) {
-        const updatedFavorites = response.favorites.map(String);
+      if (response.data.success) {
+        const updatedFavorites = response.data.favorites.map(String);
         setFavorites(updatedFavorites);
 
         const savedUser = JSON.parse(sessionStorage.getItem('user'));

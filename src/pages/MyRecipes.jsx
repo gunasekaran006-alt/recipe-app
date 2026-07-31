@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Navbar from '../components/Navbar';
 import RecipeCard from '../components/RecipeCard';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import { toast } from 'react-toastify';
+import API from '../services/api'; // 👈 1. Import API
 
 const MyRecipes = () => {
     const [myRecipes, setMyRecipes] = useState([]);
     const [selectedRecipe, setSelectedRecipe] = useState();
 
-    // 🛠️ Confirmation Modal States
     const [recipeToDelete, setRecipeToDelete] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
 
     useEffect(() => {
         const fetchMyRecipes = async () => {
             try {
-                const response = await axios.get('http://localhost:8080/api/recipes/my-recipes', { withCredentials: true });
+                // 🛠️ 2. Use API instance
+                const response = await API.get('/recipes/my-recipes');
 
-                const recipeData = Array.isArray(response.data)
-                    ? response.data
-                    : (response.data.recipes || response.data.data || []);
+                const recipeData = Array.isArray(response)
+                    ? response
+                    : (response.recipes || response.data || []);
 
                 setMyRecipes(recipeData);
             } catch (error) {
@@ -31,17 +31,16 @@ const MyRecipes = () => {
         fetchMyRecipes();
     }, []);
 
-    // 🛠️ Trigger Confirmation Modal instead of direct delete
     const handleDeleteClick = (recipeId) => {
         setRecipeToDelete(recipeId);
         setShowConfirmModal(true);
     };
 
-    // 🛠️ Actual Delete execution after confirmation
     const confirmAndExecuteDelete = async () => {
         if (recipeToDelete) {
             try {
-                await axios.delete(`http://localhost:8080/api/recipes/${recipeToDelete}`, { withCredentials: true });
+                // 🛠️ 3. Use API instance for delete
+                await API.delete(`/recipes/${recipeToDelete}`);
                 setMyRecipes(myRecipes.filter(r => r._id !== recipeToDelete));
                 toast.success("Recipe deleted successfully! 🗑️");
             } catch (error) {

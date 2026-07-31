@@ -3,30 +3,27 @@ import Navbar from '../components/Navbar';
 import RecipeCard from '../components/RecipeCard';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import { getRecipes } from '../services/api';
-import axios from 'axios';
+import API from '../services/api'; // 👈 1. Import API instead of axios
 
 function Favorites() {
   const [recipes, setRecipes] = useState([]);
   const [favorites, setFavorites] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState();
 
-  // 1. Fetching all recipes and the user's favorite IDs from the database
   useEffect(() => {
     const fetchFavoritesAndRecipes = async () => {
       try {
-        // 1. Fetching all recipes
         const recipeData = await getRecipes();
         const allRecipes = Array.isArray(recipeData) ? recipeData : (recipeData.recipes || recipeData.data || []);
         setRecipes(allRecipes);
 
-        // 2. 🛠️ Fetching the user's latest favorite IDs directly from the database (Backend Profile API)
-        const profileRes = await axios.get('http://localhost:8080/api/auth/me', { withCredentials: true });
+        // 🛠️ 2. Use API instance (No localhost hardcoding)
+        const profileRes = await API.get('/auth/me');
 
-        if (profileRes.data && profileRes.data.user && profileRes.data.user.favorites) {
-          const dbFavorites = profileRes.data.user.favorites.map(String);
+        if (profileRes.user && profileRes.user.favorites) {
+          const dbFavorites = profileRes.user.favorites.map(String);
           setFavorites(dbFavorites);
 
-          // Updating session storage as well
           const currentUser = JSON.parse(sessionStorage.getItem('user')) || {};
           currentUser.favorites = dbFavorites;
           sessionStorage.setItem('user', JSON.stringify(currentUser));
@@ -39,32 +36,25 @@ function Favorites() {
     fetchFavoritesAndRecipes();
   }, []);
 
-  // Filtering only the recipes present in the favorites list
   const favoriteRecipes = recipes.filter(recipe =>
     favorites.includes(String(recipe._id))
   );
 
-  // Toggling favorites (Add / Remove)
   const toggleFavorite = async (recipeId) => {
     const targetId = String(recipeId);
     try {
-      const response = await axios.put(
-        'http://localhost:8080/api/recipes/favorite',
-        { recipeId: targetId },
-        { withCredentials: true }
-      );
+      // 🛠️ 3. Use API instance for put request
+      const response = await API.put('/recipes/favorite', { recipeId: targetId });
 
-      if (response.data.success) {
-        const updatedFavorites = response.data.favorites.map(String);
+      if (response.success) {
+        const updatedFavorites = response.favorites.map(String);
         setFavorites(updatedFavorites);
 
-        // Updating the SessionStorage 
         const savedUser = JSON.parse(sessionStorage.getItem('user'));
         if (savedUser) {
           savedUser.favorites = updatedFavorites;
           sessionStorage.setItem('user', JSON.stringify(savedUser));
         }
-        localStorage.setItem('recipe_favorites', JSON.stringify(updatedFavorites));
       }
     } catch (error) {
       console.error("Toggle Favorite Error:", error);

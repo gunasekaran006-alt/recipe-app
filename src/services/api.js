@@ -1,137 +1,36 @@
 import axios from 'axios';
 
+// 🟢 Dynamic Base URL for both Localhost and Production
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api';
+
 const API = axios.create({
-    baseURL: "http://localhost:8080/api", // Your backend URL (you will change this on Render)
-    withCredentials: true // 👈 Crucial: This enables sending and accepting cookies!
+    baseURL: API_BASE_URL,
+    withCredentials: true // 👈 Crucial for HttpOnly Cookies
 });
 
-export default API;
-
-
-
-
-
-
-
-
-
-
-// // STEP:1
-// // const API_URL = 'http://localhost:3000/recipes';
-// const API_URL = 'http://localhost:8080/api/recipes';
-
-
-// // Fetch all recipes
-// export const getRecipes = async () => {
-//     const response = await fetch(API_URL);
-//     return await response.json();
-// };
-
-// // Add a new recipe - The token must be sent when making the API call from AddRecipeModal.jsx.
-// export const createRecipe = async (recipe, token) => {
-//     const response = await fetch(API_URL, {
-//         method: 'POST',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': `Bearer ${token}`
-//         },
-//         body: JSON.stringify(recipe),
-//     });
-//     // return await response.json();
-//     const data = await response.json();
-
-//     // 🆕 If an Error comes from the backend, we create an Error ourselves (Throw)
-//     if (!response.ok) {
-//         throw new Error(data.error || data.message || "Failed to create recipe");
-//     }
-//     return data;
-// };
-
-// // Update an existing recipe (NEWLY ADDED)
-// export const updateRecipe = async (id, updatedRecipe, token) => {
-//     const response = await fetch(`${API_URL}/${id}`, {
-//         method: 'PUT',
-//         headers: {
-//             'Content-Type': 'application/json',
-//             'Authorization': `Bearer ${token}`
-//         },
-
-//         body: JSON.stringify(updatedRecipe),
-//     });
-//     // return await response.json();
-
-//     const data = await response.json();
-
-//     // Same error handling for 🆕 Update 
-//     if (!response.ok) {
-//         if (response.status === 401) throw new Error("Invalid Token");
-//         // throw new Error(data.error || data.message || "Failed to update recipe");
-//         throw new Error(data.message || "Failed to process");
-//     }
-//     return data;
-// };
-
-// // Delete a recipe
-// // export const deleteRecipe = async (id) => {
-// //     // await fetch(`${API_URL}/${id}`, {
-// //     const response = await fetch(`${API_URL}/${id}`, {
-// //         method: 'DELETE',
-// export const deleteRecipe = async (id, token) => {
-//     const response = await fetch(`${API_URL}/${id}`, {
-//         method: 'DELETE',
-//         headers: {
-//             'Authorization': `Bearer ${token}` // 🆕 Token should be added here
-//         }
-//     });
-
-//     if (!response.ok) {
-//         throw new Error("Failed to delete recipe");
-//     }
-// };
-
-
-// // Get Recipe Aggregation Stats
-// export const getRecipeStats = async () => {
-//     const response = await fetch(`${API_URL}/stats`);
-//     return await response.json();
-// };
-
-
-
-
-
-// STEP: 2
-// const API_URL = 'http://localhost:8080/api/recipes';
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/recipes';
-
-
-// Generic Fetch Helper - Use this to avoid writing fetch repeatedly
-const apiRequest = async (url, method = 'GET', data = null, token = null) => {
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers['Authorization'] = `Bearer ${token}`;
-
-    const config = { method, headers, credentials: 'include' };
-    if (data) config.body = JSON.stringify(data);
-
-    const response = await fetch(url, config);
-    const result = await response.json();
-
-    if (!response.ok) {
-        if (response.status === 401) {
-            // sessionStorage.clear();
-            sessionStorage.removeItem("userName");
-            // sessionStorage.removeItem("user");
-
+// Generic Fetch Helper using Axios to avoid repetitive code
+const apiRequest = async (endpoint, method = 'GET', data = null) => {
+    try {
+        const response = await API({
+            url: endpoint,
+            method: method,
+            data: data
+        });
+        return response.data;
+    } catch (error) {
+        if (error.response?.status === 401) {
+            sessionStorage.removeItem("user");
             window.location.href = '/login';
         }
-        throw new Error(result.message || "Something went wrong!");
+        throw new Error(error.response?.data?.message || "Something went wrong!");
     }
-    return result;
 };
 
 // API Functions
-export const getRecipes = async () => await apiRequest(API_URL);
-export const createRecipe = async (recipe) => await apiRequest(API_URL, 'POST', recipe);
-export const updateRecipe = async (id, updatedRecipe) => await apiRequest(`${API_URL}/${id}`, 'PUT', updatedRecipe);
-export const deleteRecipe = async (id) => await apiRequest(`${API_URL}/${id}`, 'DELETE');
-export const getRecipeStats = async () => await apiRequest(`${API_URL}/stats`);
+export const getRecipes = async () => await apiRequest('/recipes');
+export const createRecipe = async (recipe) => await apiRequest('/recipes', 'POST', recipe);
+export const updateRecipe = async (id, updatedRecipe) => await apiRequest(`/recipes/${id}`, 'PUT', updatedRecipe);
+export const deleteRecipe = async (id) => await apiRequest(`/recipes/${id}`, 'DELETE');
+export const getRecipeStats = async () => await apiRequest('/recipes/stats');
+
+export default API;

@@ -1,15 +1,11 @@
 const nodemailer = require('nodemailer');
-const dns = require('dns');
-
-// 🛠️ Force Node.js to use IPv4 to avoid Render's ENETUNREACH network error
-dns.setDefaultResultOrder('ipv4first');
 
 const sendEmail = async (options) => {
+    // 1. Create transporter using secure port 587 and explicit IPv4 hint
     const transporter = nodemailer.createTransport({
-        service: 'gmail',
         host: 'smtp.gmail.com',
-        port: 465,
-        secure: true,
+        port: 587,
+        secure: false, // true for 465, false for 587
         auth: {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASS
@@ -19,6 +15,7 @@ const sendEmail = async (options) => {
         }
     }); 
 
+    // 2. Email details
     const mailOptions = {
         from: `"Recipe Share App" <${process.env.EMAIL_USER}>`,
         to: options.email,
@@ -26,6 +23,7 @@ const sendEmail = async (options) => {
         text: options.message
     }; 
 
+    // 3. Send the email
     await transporter.sendMail(mailOptions);
 };
 

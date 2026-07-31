@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import API from '../services/api';
 
 function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
   const emptyFormState = {
@@ -187,15 +187,9 @@ function AddRecipeModal({ show, onClose, onAddRecipe, editRecipe }) {
     };
 
     try {
-      const url = editRecipe
-        ? `http://localhost:8080/api/recipes/${editRecipe._id}`
-        : 'http://localhost:8080/api/recipes/';
-
+      const url = editRecipe ? `/recipes/${editRecipe._id}` : '/recipes/';
       const method = editRecipe ? 'put' : 'post';
-
-      const response = await axios[method](url, recipeToAdd, {
-        withCredentials: true
-      });
+      const response = await API[method](url, recipeToAdd);
 
       toast.success(response.data.message || "Recipe saved successfully! ✨");
 

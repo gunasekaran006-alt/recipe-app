@@ -5,7 +5,7 @@ import HeroSection from '../components/HeroSection';
 import RecipeDetailModal from '../components/RecipeDetailModal';
 import { getRecipes, deleteRecipe } from '../services/api';
 import { toast } from 'react-toastify';
-import axios from 'axios';
+import API from '../services/api';
 
 function Home() {
     const [recipes, setRecipes] = useState([]);
@@ -23,11 +23,7 @@ function Home() {
     const toggleFavorite = async (recipeId) => {
         const targetId = String(recipeId);
         try {
-            const response = await axios.put(
-                'http://localhost:8080/api/recipes/favorite',
-                { recipeId: targetId },
-                { withCredentials: true }
-            );
+            const response = await API.put('/recipes/favorite', { recipeId: targetId });
 
             if (response.data.success) {
                 const updatedFavorites = response.data.favorites.map(String);

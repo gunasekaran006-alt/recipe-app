@@ -1,10 +1,8 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { toast } from 'react-toastify';
 
 function ProtectedRoute({ children }) {
   const [isAuthenticated, setIsAuthenticated] = useState(null);
-  const alertShownRef = useRef(false);
   const location = useLocation();
 
   useEffect(() => {
@@ -40,11 +38,8 @@ function ProtectedRoute({ children }) {
     );
   }
 
+  // 🛑 Silent redirect without annoying toast alert when landing on protected pages unauthenticated
   if (!isAuthenticated && !isAuthPage) {
-    if (!alertShownRef.current) {
-      alertShownRef.current = true;
-      toast.error("Please login first to access this page!", { toastId: "auth-alert" });
-    }
     return <Navigate to="/login" replace />;
   }
 

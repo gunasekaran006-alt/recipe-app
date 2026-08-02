@@ -81,10 +81,13 @@ exports.updateRecipe = async (req, res) => {
             req.body.name = toTitleCase(req.body.name);
         }
 
-        // Mongoose Command: db.recipes.updateOne()
-        // Providing `{ new: true }` returns the updated data.
-        const updatedRecipe = await Recipe.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }); // new: true Returns the newly updated data.
 
+        // Providing `{ new: true }` returns the updated data.---->old method
+        // const updatedRecipe = await Recipe.findByIdAndUpdate(id, req.body, { new: true, runValidators: true }); // new: true Returns the newly updated data.
+
+        // Providing `{ returnDocument: 'after' }` returns the updated data.---->new method
+        const updatedRecipe = await Recipe.findByIdAndUpdate(id, req.body, { returnDocument: 'after', runValidators: true });
+       
         if (!updatedRecipe) {
             return res.status(404).json({ message: "Recipe Not Found! ❌" });
         }
